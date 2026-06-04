@@ -3,7 +3,13 @@ import { io } from 'socket.io-client';
 
 const SocketContext = createContext();
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = (() => {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (apiUrl) {
+    return apiUrl.replace(/\/api\/?$/, '');
+  }
+  return import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+})();
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
