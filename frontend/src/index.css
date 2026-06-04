@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #f0fdf9;
+  --color-primary-100: #ccfbf1;
+  --color-primary-500: #14b8a6;
+  --color-primary-600: #0d9488;
+  --color-primary-700: #0f766e;
+  
+  --color-cricket-50: #f6fee7;
+  --color-cricket-100: #ecfcc9;
+  --color-cricket-500: #84cc16;
+  --color-cricket-600: #65a30d;
+  --color-cricket-700: #4d7c0f;
+
+  --color-dark-bg: #0b0f19;
+  --color-dark-card: #111827;
+  --color-dark-border: #1f2937;
+  --color-dark-text: #f9fafb;
+  --color-dark-muted: #9ca3af;
+
+  --font-sans: 'Outfit', 'Inter', 'sans-serif';
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 transition-colors duration-200 ease-in-out font-sans antialiased;
+  }
+  
+  body.dark {
+    @apply bg-dark-bg text-dark-text;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 inline-flex items-center justify-center gap-2;
+  }
+  
+  .btn-primary {
+    @apply bg-cricket-600 hover:bg-cricket-700 text-white shadow-md hover:shadow-lg active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-dark-card dark:hover:bg-slate-800 dark:text-dark-text border border-slate-300 dark:border-dark-border shadow-sm active:scale-95;
+  }
+
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg active:scale-95;
+  }
+
+  .card {
+    @apply bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl shadow-sm overflow-hidden;
+  }
+
+  .glass-panel {
+    @apply bg-white/80 dark:bg-dark-card/85 backdrop-blur-md border border-slate-200 dark:border-dark-border/50;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400 dark:bg-slate-600;
+  }
+}
+
+/* Custom animations */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .4; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Wagon Wheel Field container */
+.cricket-field {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, #4ade80 20%, #22c55e 70%, #15803d 100%);
+  border-radius: 50%;
+  border: 4px solid #fff;
+  overflow: hidden;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.3);
+}
+
+.cricket-field-pitch {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12%;
+  height: 35%;
+  background-color: #fef08a;
+  border: 1px solid #ca8a04;
+}
+
+.cricket-field-crease-1 {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 2px;
+  background-color: #fff;
+}
+
+.cricket-field-crease-2 {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 2px;
+  background-color: #fff;
+}
