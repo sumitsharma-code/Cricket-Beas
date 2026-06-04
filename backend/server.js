@@ -20,11 +20,20 @@ const server = http.createServer(app);
 app.use(helmet());
 
 // 2. CORS Configuration
-const clientUrl = process.env.CLIENT_URL || '*';
+const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+const allowedOrigins = clientUrl.split(',').map(url => url.trim());
+
 app.use(cors({
-  origin: clientUrl === '*' ? '*' : clientUrl.split(','),
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 // 3. Rate Limiting (Prevent API abuse)
@@ -42,8 +51,9 @@ app.use(express.json({ limit: '10mb' }));
 // 4. WebSocket setup
 const io = socketio(server, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
   }
 });
 app.set('socketio', io);
