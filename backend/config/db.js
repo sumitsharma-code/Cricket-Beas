@@ -7,10 +7,7 @@ const connectWithRetry = async (dbUri, retries = 5, delay = 5000) => {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       console.log(`Database connection attempt ${attempt}/${retries}...`);
-      const conn = await mongoose.connect(dbUri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
+      const conn = await mongoose.connect(dbUri);
       connectionState = 'Connected';
       console.log(`MongoDB Connected: ${conn.connection.host}`);
       return;
