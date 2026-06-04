@@ -21,19 +21,35 @@ app.use(helmet());
 
 // 2. CORS Configuration
 const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
-const allowedOrigins = clientUrl.split(',').map(url => url.trim());
+const allowedOrigins = clientUrl.split(',').map(url => url.trim()).filter(url => url);
+
+console.log('CORS Allowed Origins:', allowedOrigins);
+console.log('NODE_ENV:', process.env.NODE_ENV);
 
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) {
+      return callback(null, true);
     }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow in development
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    console.warn('CORS rejected origin:', origin);
+    return callback(new Error('CORS not allowed'));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
 
 // 3. Rate Limiting (Prevent API abuse)
