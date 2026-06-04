@@ -115,6 +115,8 @@ const MatchSchema = new mongoose.Schema({
   winnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', default: null },
   resultDescription: { type: String, default: '' },
   assignedScorerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  careerStatsApplied: { type: Boolean, default: false },
+  careerStatsAppliedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
 });
 

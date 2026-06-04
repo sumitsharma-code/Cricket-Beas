@@ -63,8 +63,8 @@ exports.getMatches = async (req, res) => {
 exports.getMatchById = async (req, res) => {
   try {
     const match = await Match.findById(req.params.id)
-      .populate('homeTeamId')
-      .populate('awayTeamId')
+      .populate({ path: 'homeTeamId', populate: { path: 'players', select: 'name role _id' } })
+      .populate({ path: 'awayTeamId', populate: { path: 'players', select: 'name role _id' } })
       .populate('winnerId')
       .populate('playerOfTheMatchId')
       .populate('assignedScorerId', 'username phone')

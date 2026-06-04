@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import WagonWheelSelector from '../components/WagonWheelSelector';
-import { ArrowLeft, BarChart2, FileText, ChevronRight, CornerUpLeft, Award } from 'lucide-react';
+import { ArrowLeft, BarChart2, FileText, ChevronRight, CornerUpLeft, Award, ShieldAlert } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function MatchScoring() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [match, setMatch] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,7 +44,27 @@ export default function MatchScoring() {
   const fetchMatchDetails = async () => {
     try {
       const data = await api.getMatch(id);
-      setMatch(data);
+      // Ensure team player objects are populated (some backends return ObjectId array)
+      const ensureTeamPlayers = async (teamObj) => {
+        if (!teamObj) return teamObj;
+        // If players is empty or already populated with objects, return as-is
+        if (!teamObj.players || teamObj.players.length === 0) return teamObj;
+        const first = teamObj.players[0];
+        if (typeof first === 'object' && first.name) return teamObj;
+
+        // Otherwise fetch player objects for each id
+        try {
+          const fetched = await Promise.all(teamObj.players.map(pid => api.getPlayer(pid)));
+          return { ...teamObj, players: fetched };
+        } catch (err) {
+          // If fetch fails, return original
+          return teamObj;
+        }
+      };
+
+      const home = await ensureTeamPlayers(data.homeTeamId);
+      const away = await ensureTeamPlayers(data.awayTeamId);
+      setMatch({ ...data, homeTeamId: home, awayTeamId: away });
       if (data.status === 'Scheduled') {
         setTossWonBy(data.homeTeamId?._id || '');
         setOversInput(data.totalOvers || 16);
@@ -84,21 +106,42 @@ export default function MatchScoring() {
 
   const handleSetPlayers = async (e) => {
     e.preventDefault();
-    if (!newStriker || !newNonStriker || !newBowler) {
-      alert("Please select striker, non-striker, and opening bowler!");
+    const needStriker = !match.currentState?.strikerId;
+    const needNonStriker = !match.currentState?.nonStrikerId;
+    const needBowler = !match.currentState?.currentBowlerId;
+
+    if (needStriker && !newStriker) {
+      alert("Please select striker!");
       return;
     }
-    if (newStriker === newNonStriker) {
+    if (needNonStriker && !newNonStriker) {
+      alert("Please select non-striker!");
+      return;
+    }
+    if (needBowler && !newBowler) {
+      alert("Please select bowler!");
+      return;
+    }
+
+    if (needStriker && needNonStriker && newStriker === newNonStriker) {
       alert("Striker and Non-striker must be different players!");
+      return;
+    }
+    if (needStriker && !needNonStriker && newStriker === match.currentState.nonStrikerId?._id) {
+      alert("Striker cannot be the same as the current non-striker!");
+      return;
+    }
+    if (needNonStriker && !needStriker && newNonStriker === match.currentState.strikerId?._id) {
+      alert("Non-striker cannot be the same as the current striker!");
       return;
     }
 
     try {
       setLoading(true);
       await api.setActivePlayers(id, {
-        strikerId: newStriker,
-        nonStrikerId: newNonStriker,
-        bowlerId: newBowler
+        strikerId: needStriker ? newStriker : match.currentState.strikerId._id,
+        nonStrikerId: needNonStriker ? newNonStriker : match.currentState.nonStrikerId._id,
+        bowlerId: needBowler ? newBowler : match.currentState.currentBowlerId._id
       });
       setShowPlayerSelector(false);
       
@@ -217,28 +260,38 @@ export default function MatchScoring() {
   const homeTeam = match.homeTeamId || { name: 'Host Team' };
   const awayTeam = match.awayTeamId || { name: 'Visitor Team' };
 
-  const battingTeam = match.currentInnings === 1 
-    ? (match.innings[0]?.teamId || match.homeTeamId) 
-    : (match.innings[1]?.teamId || match.awayTeamId);
+  const getPopulatedTeam = (teamReference) => {
+    if (!teamReference) return null;
+    const teamIdStr = (typeof teamReference === 'object' && teamReference._id)
+      ? teamReference._id.toString()
+      : teamReference.toString();
+    if (teamIdStr === homeTeam._id?.toString()) return homeTeam;
+    if (teamIdStr === awayTeam._id?.toString()) return awayTeam;
+    return null;
+  };
 
-  const bowlingTeam = battingTeam._id === match.homeTeamId._id ? match.awayTeamId : match.homeTeamId;
+  const battingTeam = match.currentInnings === 1 
+    ? (getPopulatedTeam(match.innings[0]?.teamId) || homeTeam) 
+    : (getPopulatedTeam(match.innings[1]?.teamId) || awayTeam);
+
+  const bowlingTeam = battingTeam?._id?.toString() === homeTeam._id?.toString() ? awayTeam : homeTeam;
 
   // Compile players who haven't been dismissed
-  const currentInningsObj = match.innings[match.currentInnings - 1];
+  const currentInningsObj = match.innings?.[match.currentInnings - 1];
   const activeBatsmenIds = [];
-  if (match.currentState.strikerId) activeBatsmenIds.push(match.currentState.strikerId._id);
-  if (match.currentState.nonStrikerId) activeBatsmenIds.push(match.currentState.nonStrikerId._id);
+  if (match.currentState?.strikerId) activeBatsmenIds.push(match.currentState.strikerId._id);
+  if (match.currentState?.nonStrikerId) activeBatsmenIds.push(match.currentState.nonStrikerId._id);
 
   const dismissedBatsmenIds = currentInningsObj 
     ? currentInningsObj.battingScorecard.filter(b => b.outStatus !== 'Not Out' && b.outStatus !== 'Retired Hurt').map(b => b.playerId?._id || b.playerId)
     : [];
 
-  const availableBatsmen = battingTeam.players 
+  const availableBatsmen = battingTeam?.players 
     ? battingTeam.players.filter(p => !dismissedBatsmenIds.includes(p._id) && !activeBatsmenIds.includes(p._id))
     : [];
 
-  const availableBowlers = bowlingTeam.players 
-    ? bowlingTeam.players.filter(p => p._id !== match.currentState.currentBowlerId?._id)
+  const availableBowlers = bowlingTeam?.players 
+    ? bowlingTeam.players.filter(p => p._id !== match.currentState?.currentBowlerId?._id)
     : [];
 
   // Helper for Strike Rate & Economy Rate
@@ -251,6 +304,17 @@ export default function MatchScoring() {
   // Helper to check if a lock applies (only assignedScorerId can write)
   // If not scorer, we can display a read-only warning
   const isScorerLocked = match.assignedScorerId && match.assignedScorerId._id !== user?._id && match.assignedScorerId !== user?._id && user?.role !== 'Super Admin';
+
+  if (!match.homeTeamId || !match.awayTeamId) {
+    return (
+      <div className="max-w-md mx-auto my-12 text-center bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 p-6 rounded-2xl">
+        <ShieldAlert className="h-10 w-10 text-red-650 mx-auto mb-3" />
+        <h3 className="font-bold text-red-800 dark:text-red-400">Match teams are missing</h3>
+        <p className="text-sm text-red-650 mt-1 mb-4">This match cannot be scored until both teams exist again.</p>
+        <Link to="/" className="btn-secondary text-sm">Back to Dashboard</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-dark-bg text-slate-800 dark:text-dark-text pb-16 font-sans">
@@ -400,59 +464,71 @@ export default function MatchScoring() {
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
-              <h1 className="text-lg font-bold">Select Opening players</h1>
+              <h1 className="text-lg font-bold">
+                {!match.currentState?.strikerId && !match.currentState?.nonStrikerId && !match.currentState?.currentBowlerId
+                  ? "Select Opening players"
+                  : !match.currentState?.strikerId || !match.currentState?.nonStrikerId
+                  ? "Select New Batsman"
+                  : "Select Bowler"}
+              </h1>
             </div>
 
             {/* Form */}
             <form onSubmit={handleSetPlayers} className="p-4 space-y-6">
               
               {/* Striker */}
-              <div>
-                <label className="block text-sm font-bold text-cricket-750 dark:text-cricket-500 mb-1">Striker</label>
-                <select
-                  required
-                  value={newStriker}
-                  onChange={(e) => setNewStriker(e.target.value)}
-                  className="w-full py-2 border-b border-cricket-600 bg-transparent text-sm text-slate-805 dark:text-white focus:outline-none"
-                >
-                  <option value="" className="dark:bg-dark-card">Choose striker...</option>
-                  {availableBatsmen.map(p => (
-                    <option key={p._id} value={p._id} className="dark:bg-dark-card">{p.name} ({p.role})</option>
-                  ))}
-                </select>
-              </div>
+              {!match.currentState?.strikerId && (
+                <div>
+                  <label className="block text-sm font-bold text-cricket-750 dark:text-cricket-500 mb-1">Striker</label>
+                  <select
+                    required
+                    value={newStriker}
+                    onChange={(e) => setNewStriker(e.target.value)}
+                    className="w-full py-2 border-b border-cricket-600 bg-transparent text-sm text-slate-805 dark:text-white focus:outline-none"
+                  >
+                    <option value="" className="dark:bg-dark-card">Choose striker...</option>
+                    {availableBatsmen.filter(p => p._id !== newNonStriker).map(p => (
+                      <option key={p._id} value={p._id} className="dark:bg-dark-card">{p.name} ({p.role})</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {/* Non-Striker */}
-              <div>
-                <label className="block text-sm font-bold text-cricket-750 dark:text-cricket-500 mb-1">Non-striker</label>
-                <select
-                  required
-                  value={newNonStriker}
-                  onChange={(e) => setNewNonStriker(e.target.value)}
-                  className="w-full py-2 border-b border-cricket-600 bg-transparent text-sm text-slate-805 dark:text-white focus:outline-none"
-                >
-                  <option value="" className="dark:bg-dark-card">Choose non-striker...</option>
-                  {availableBatsmen.filter(p => p._id !== newStriker).map(p => (
-                    <option key={p._id} value={p._id} className="dark:bg-dark-card">{p.name} ({p.role})</option>
-                  ))}
-                </select>
-              </div>
+              {!match.currentState?.nonStrikerId && (
+                <div>
+                  <label className="block text-sm font-bold text-cricket-750 dark:text-cricket-500 mb-1">Non-striker</label>
+                  <select
+                    required
+                    value={newNonStriker}
+                    onChange={(e) => setNewNonStriker(e.target.value)}
+                    className="w-full py-2 border-b border-cricket-600 bg-transparent text-sm text-slate-805 dark:text-white focus:outline-none"
+                  >
+                    <option value="" className="dark:bg-dark-card">Choose non-striker...</option>
+                    {availableBatsmen.filter(p => p._id !== newStriker).map(p => (
+                      <option key={p._id} value={p._id} className="dark:bg-dark-card">{p.name} ({p.role})</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {/* Bowler */}
-              <div>
-                <label className="block text-sm font-bold text-cricket-750 dark:text-cricket-500 mb-1">Opening bowler</label>
-                <select
-                  required
-                  value={newBowler}
-                  onChange={(e) => setNewBowler(e.target.value)}
-                  className="w-full py-2 border-b border-cricket-600 bg-transparent text-sm text-slate-850 dark:text-white focus:outline-none"
-                >
-                  <option value="" className="dark:bg-dark-card">Choose bowler...</option>
-                  {availableBowlers.map(p => (
-                    <option key={p._id} value={p._id} className="dark:bg-dark-card">{p.name} ({p.role})</option>
-                  ))}
-                </select>
-              </div>
+              {!match.currentState?.currentBowlerId && (
+                <div>
+                  <label className="block text-sm font-bold text-cricket-750 dark:text-cricket-500 mb-1">Bowler</label>
+                  <select
+                    required
+                    value={newBowler}
+                    onChange={(e) => setNewBowler(e.target.value)}
+                    className="w-full py-2 border-b border-cricket-600 bg-transparent text-sm text-slate-850 dark:text-white focus:outline-none"
+                  >
+                    <option value="" className="dark:bg-dark-card">Choose bowler...</option>
+                    {availableBowlers.map(p => (
+                      <option key={p._id} value={p._id} className="dark:bg-dark-card">{p.name} ({p.role})</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {/* Start match submit */}
               <button
@@ -460,7 +536,9 @@ export default function MatchScoring() {
                 disabled={isScorerLocked}
                 className="w-full bg-cricket-650 hover:bg-cricket-750 text-white font-bold py-3 rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-50 mt-10"
               >
-                Start match
+                {!match.currentState?.strikerId && !match.currentState?.nonStrikerId && !match.currentState?.currentBowlerId
+                  ? "Start match"
+                  : "Set Active Players"}
               </button>
 
             </form>
@@ -482,7 +560,7 @@ export default function MatchScoring() {
                   <ArrowLeft className="h-5 w-5" />
                 </Link>
                 <span className="font-extrabold text-sm tracking-wide">
-                  {homeTeam.name.toLowerCase()} v/s {awayTeam.name.toLowerCase()}
+                  {(homeTeam?.name || '').toLowerCase()} v/s {(awayTeam?.name || '').toLowerCase()}
                 </span>
               </div>
               
@@ -500,7 +578,7 @@ export default function MatchScoring() {
             <div className="p-3">
               <div className="card shadow border-0 p-4 space-y-4">
                 <div className="flex justify-between items-center text-xs text-slate-500 font-bold uppercase">
-                  <span>{battingTeam.name.toLowerCase()}, 1st inning</span>
+                  <span>{(battingTeam?.name || '').toLowerCase()}, 1st inning</span>
                   <span>CRR</span>
                 </div>
 
@@ -538,7 +616,7 @@ export default function MatchScoring() {
                   {match.currentState.strikerId && (
                     <div className="grid grid-cols-12 text-slate-800 dark:text-slate-200">
                       <span className="col-span-5 font-bold text-cricket-650 truncate flex items-center">
-                        {match.currentState.strikerId.name.toLowerCase()}*
+                        {(match.currentState?.strikerId?.name || '').toLowerCase()}*
                       </span>
                       {(() => {
                         const card = currentInningsObj?.battingScorecard.find(b => b.playerId?._id === match.currentState.strikerId?._id);
@@ -559,7 +637,7 @@ export default function MatchScoring() {
                   {match.currentState.nonStrikerId && (
                     <div className="grid grid-cols-12 text-slate-700 dark:text-slate-300">
                       <span className="col-span-5 truncate text-slate-650">
-                        {match.currentState.nonStrikerId.name.toLowerCase()}
+                        {(match.currentState?.nonStrikerId?.name || '').toLowerCase()}
                       </span>
                       {(() => {
                         const card = currentInningsObj?.battingScorecard.find(b => b.playerId?._id === match.currentState.nonStrikerId?._id);
@@ -590,7 +668,7 @@ export default function MatchScoring() {
                   {match.currentState.currentBowlerId && (
                     <div className="grid grid-cols-12 text-slate-800 dark:text-slate-200">
                       <span className="col-span-5 font-bold truncate text-slate-650">
-                        {match.currentState.currentBowlerId.name.toLowerCase()}
+                        {(match.currentState?.currentBowlerId?.name || '').toLowerCase()}
                       </span>
                       {(() => {
                         const card = currentInningsObj?.bowlingScorecard.find(b => b.playerId?._id === match.currentState.currentBowlerId?._id);
@@ -846,7 +924,7 @@ export default function MatchScoring() {
                 <div className="flex gap-3 mt-4">
                   <button 
                     onClick={() => setShowWagonWheelModal(false)}
-                    className="btn-primary flex-grow text-xs py-2 font-bold"
+                    className="btn-primary grow text-xs py-2 font-bold"
                   >
                     Save & Close
                   </button>

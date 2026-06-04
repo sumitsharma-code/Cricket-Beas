@@ -79,6 +79,20 @@ export default function MatchDetail() {
   const homeTeam = match.homeTeamId || { name: 'Home Team' };
   const awayTeam = match.awayTeamId || { name: 'Away Team' };
 
+  const getPopulatedTeam = (teamReference) => {
+    if (!teamReference) return null;
+    const teamIdStr = (typeof teamReference === 'object' && teamReference._id)
+      ? teamReference._id.toString()
+      : teamReference.toString();
+    if (teamIdStr === homeTeam._id?.toString()) return homeTeam;
+    if (teamIdStr === awayTeam._id?.toString()) return awayTeam;
+    return null;
+  };
+
+  const battingTeam = match.currentInnings === 1
+    ? (getPopulatedTeam(match.innings[0]?.teamId) || homeTeam)
+    : (getPopulatedTeam(match.innings[1]?.teamId) || awayTeam);
+
   // Calculate current innings details
   const activeInningsIdx = match.currentInnings - 1;
   const currentInnings = match.innings[activeInningsIdx];
@@ -218,7 +232,7 @@ export default function MatchDetail() {
               </div>
             ) : (
               match.innings.map((inn, innIdx) => {
-                const innTeam = inn.teamId === homeTeam._id ? homeTeam : awayTeam;
+                const innTeam = (inn.teamId?._id || inn.teamId)?.toString() === homeTeam._id?.toString() ? homeTeam : awayTeam;
                 return (
                   <div key={inn._id || innIdx} className="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-6 shadow-sm space-y-6">
                     <div className="flex justify-between items-center border-b border-slate-100 dark:border-dark-border pb-3">
@@ -416,7 +430,7 @@ export default function MatchDetail() {
               <p className="text-center py-12 text-slate-500 italic text-sm">Partnerships will track upon match start.</p>
             ) : (
               match.innings.map((inn, innIdx) => {
-                const innTeam = inn.teamId === homeTeam._id ? homeTeam : awayTeam;
+                const innTeam = (inn.teamId?._id || inn.teamId)?.toString() === homeTeam._id?.toString() ? homeTeam : awayTeam;
                 return (
                   <div key={innIdx} className="space-y-4 mb-8">
                     <h4 className="font-bold text-sm text-slate-500 uppercase tracking-wide">

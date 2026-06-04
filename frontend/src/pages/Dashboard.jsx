@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import MatchCard from '../components/MatchCard';
-import TournamentCard from '../components/TournamentCard';
-import { Plus, Calendar, Trophy, Users, User, RefreshCw, Activity, UserPlus } from 'lucide-react';
+import { Plus, Calendar, Users, User, Activity, UserPlus } from 'lucide-react';
 
 export default function Dashboard() {
   const { user } = useAuth();
   
   // Data lists
   const [matches, setMatches] = useState([]);
-  const [tournaments, setTournaments] = useState([]);
+  
   const [teams, setTeams] = useState([]);
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +17,7 @@ export default function Dashboard() {
 
   // Modals state
   const [showMatchModal, setShowMatchModal] = useState(false);
-  const [showTournamentModal, setShowTournamentModal] = useState(false);
+  const [showAdminMatchModal, setShowAdminMatchModal] = useState(false);
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [showPlayerModal, setShowPlayerModal] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -26,14 +25,38 @@ export default function Dashboard() {
   // New Match fields
   const [homeTeamId, setHomeTeamId] = useState('');
   const [awayTeamId, setAwayTeamId] = useState('');
-  const [matchType, setMatchType] = useState('T20');
-  const [totalOvers, setTotalOvers] = useState(20);
-  const [matchTournamentId, setMatchTournamentId] = useState('');
+  const [matchType, setMatchType] = useState('Custom');
+  const [totalOvers, setTotalOvers] = useState(0);
+  // Admin add-match (custom teams) fields
+  const [homeTeamName, setHomeTeamName] = useState('');
+  const [homeTeamMembers, setHomeTeamMembers] = useState([]);
+  const [awayTeamName, setAwayTeamName] = useState('');
+  const [awayTeamMembers, setAwayTeamMembers] = useState([]);
 
-  // New Tournament fields
-  const [tournamentName, setTournamentName] = useState('');
-  const [tournamentFormat, setTournamentFormat] = useState('League');
-  const [selectedTeams, setSelectedTeams] = useState([]);
+  // Deduplicate players by _id to avoid duplicates showing in the modal
+  const uniquePlayers = useMemo(() => {
+    const map = new Map();
+    (players || []).forEach(p => {
+      if (p && p._id && !map.has(p._id)) map.set(p._id, p);
+    });
+    return Array.from(map.values());
+  }, [players]);
+  // (tournaments removed — matches are custom only)
+
+  // Dashboard stats and recent matches
+  const totalMatches = matches.length;
+  const totalTeams = teams.length;
+  const totalPlayers = players.length;
+
+  const recentMatches = useMemo(() => {
+    const copy = Array.isArray(matches) ? [...matches] : [];
+    copy.sort((a, b) => {
+      const aTime = new Date(a?.createdAt || a?.startTime || a?.date || 0).getTime();
+      const bTime = new Date(b?.createdAt || b?.startTime || b?.date || 0).getTime();
+      return bTime - aTime;
+    });
+    return copy.slice(0, 5);
+  }, [matches]);
 
   // New Team fields
   const [teamName, setTeamName] = useState('');
@@ -53,10 +76,6 @@ export default function Dashboard() {
     try {
       const matchData = await api.getMatches();
       setMatches(matchData);
-      
-      const tourData = await api.getTournaments();
-      setTournaments(tourData);
-      
       const teamData = await api.getTeams();
       setTeams(teamData);
       
@@ -86,7 +105,7 @@ export default function Dashboard() {
         awayTeamId,
         matchType,
         totalOvers: Number(totalOvers),
-        tournamentId: matchTournamentId || null,
+        tournamentId: null,
       });
       setShowMatchModal(false);
       fetchData();
@@ -95,23 +114,36 @@ export default function Dashboard() {
     }
   };
 
-  const handleCreateTournament = async (e) => {
+  const handleAdminCreateMatch = async (e) => {
     e.preventDefault();
-    if (!tournamentName) return;
+    if (!homeTeamName || !awayTeamName) return alert('Please provide both team names');
+    if (homeTeamName.trim() === awayTeamName.trim()) return alert('Teams must have different names');
+
     try {
-      await api.createTournament({
-        name: tournamentName,
-        format: tournamentFormat,
-        teamIds: selectedTeams,
+      // Create teams from provided names + selected player ids
+      const homeTeam = await api.createTeam({ name: homeTeamName.trim(), playerIds: homeTeamMembers });
+      const awayTeam = await api.createTeam({ name: awayTeamName.trim(), playerIds: awayTeamMembers });
+
+      await api.createMatch({
+        homeTeamId: homeTeam._id,
+        awayTeamId: awayTeam._id,
+        matchType: 'Custom',
+        totalOvers: 0,
+        tournamentId: null,
       });
-      setShowTournamentModal(false);
-      setTournamentName('');
-      setSelectedTeams([]);
+
+      setShowAdminMatchModal(false);
+      setHomeTeamName('');
+      setAwayTeamName('');
+      setHomeTeamMembers([]);
+      setAwayTeamMembers([]);
       fetchData();
     } catch (err) {
-      alert(err.message);
+      alert(err.message || 'Error creating match');
     }
   };
+
+  
 
   const handleCreateTeam = async (e) => {
     e.preventDefault();
@@ -181,52 +213,77 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      {/* Top Banner */}
-      <div className="bg-linear-to-r from-cricket-600 to-teal-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg mb-8 relative overflow-hidden">
-        <div className="absolute right-0 bottom-0 opacity-10 transform translate-x-1/4 translate-y-1/4 scale-150">
-          <Trophy className="w-96 h-96" />
-        </div>
-        <div className="relative z-10 max-w-2xl">
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">
-            Local Cricket, Real-Time Scores
-          </h1>
-          <p className="text-slate-100 text-sm sm:text-base mb-6">
-            Track runs, wickets, points tables, and career statistics on CricBeas, the premium platform for local tournaments.
-          </p>
-          <div className="flex flex-wrap gap-3">
+      {/* Compact Header */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between bg-transparent">
+          <div>
+            <h1 className="text-2xl font-bold">CricBeas — Live Scores</h1>
+            <p className="text-sm text-slate-500">Fast mobile-first scoring for local cricket</p>
+          </div>
+          <div className="flex items-center gap-3">
             {isAdmin && (
               <button 
                 onClick={() => setShowUserModal(true)}
-                className="bg-emerald-500 text-white hover:bg-emerald-600 font-bold px-4 py-2 rounded-xl text-sm transition-colors shadow flex items-center gap-1.5"
+                className="bg-emerald-500 text-white hover:bg-emerald-600 font-bold px-4 py-2 rounded-lg text-sm transition-colors shadow flex items-center gap-2"
               >
                 <UserPlus className="h-4 w-4" /> Add User
               </button>
             )}
-            {isModerator && (
-              <>
-                <button 
-                  onClick={() => setShowMatchModal(true)}
-                  className="bg-white text-cricket-700 hover:bg-slate-50 font-bold px-4 py-2 rounded-xl text-sm transition-colors shadow flex items-center gap-1.5"
-                >
-                  <Plus className="h-4 w-4" /> Schedule Match
-                </button>
-                <button 
-                  onClick={() => setShowTournamentModal(true)}
-                  className="bg-cricket-800 text-white hover:bg-cricket-900 border border-cricket-700 font-bold px-4 py-2 rounded-xl text-sm transition-colors shadow flex items-center gap-1.5"
-                >
-                  <Plus className="h-4 w-4" /> Start Tournament
-                </button>
-              </>
+            {isAdmin && (
+              <button 
+                onClick={() => setShowAdminMatchModal(true)}
+                className="bg-white text-cricket-700 hover:bg-slate-50 font-bold px-4 py-2 rounded-lg text-sm transition-colors shadow flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" /> Add Match
+              </button>
             )}
-            <button 
-              onClick={fetchData}
-              className="bg-white/10 hover:bg-white/20 text-white font-medium px-4 py-2 rounded-xl text-sm transition-colors border border-white/20 flex items-center gap-1.5"
-            >
-              <RefreshCw className="h-4 w-4" /> Refresh Scores
-            </button>
           </div>
         </div>
       </div>
+
+      {/* Quick Stats & Recent Matches */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 flex items-center gap-3">
+          <div className="p-3 rounded-lg bg-cricket-600 text-white">
+            <Activity className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="text-xs text-slate-500">Matches</div>
+            <div className="text-xl font-bold">{totalMatches}</div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 flex items-center gap-3">
+          <div className="p-3 rounded-lg bg-cricket-600 text-white">
+            <Users className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="text-xs text-slate-500">Teams</div>
+            <div className="text-xl font-bold">{totalTeams}</div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 flex items-center gap-3">
+          <div className="p-3 rounded-lg bg-cricket-600 text-white">
+            <User className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="text-xs text-slate-500">Players</div>
+            <div className="text-xl font-bold">{totalPlayers}</div>
+          </div>
+        </div>
+      </div>
+
+      {recentMatches.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-lg font-bold mb-3">Recent Matches</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recentMatches.map(m => (
+              <MatchCard key={m._id} match={m} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex border-b border-slate-200 dark:border-dark-border mb-6">
@@ -241,16 +298,6 @@ export default function Dashboard() {
           <Activity className="h-4 w-4" /> Live & Scheduled Matches
         </button>
         <button
-          onClick={() => setActiveTab('tournaments')}
-          className={`py-3 px-6 text-sm font-semibold flex items-center gap-2 border-b-2 transition-all ${
-            activeTab === 'tournaments'
-              ? 'border-cricket-500 text-cricket-600 dark:text-cricket-400'
-              : 'border-transparent text-slate-500 dark:text-dark-muted hover:text-slate-700'
-          }`}
-        >
-          <Trophy className="h-4 w-4" /> Tournaments
-        </button>
-        <button
           onClick={() => setActiveTab('teams')}
           className={`py-3 px-6 text-sm font-semibold flex items-center gap-2 border-b-2 transition-all ${
             activeTab === 'teams'
@@ -261,7 +308,6 @@ export default function Dashboard() {
           <Users className="h-4 w-4" /> Teams & Players
         </button>
       </div>
-
       {loading ? (
         <div className="text-center py-20">
           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-cricket-600 mx-auto mb-4"></div>
@@ -275,47 +321,22 @@ export default function Dashboard() {
               {matches.length === 0 ? (
                 <div className="text-center py-16 bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl">
                   <Calendar className="h-12 w-12 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
-                  <h3 className="font-bold text-slate-800 dark:text-white">No matches scheduled</h3>
-                  <p className="text-sm text-slate-500 mt-1 mb-4">Get started by creating your first match.</p>
-                  {isModerator && (
-                    <button onClick={() => setShowMatchModal(true)} className="btn-primary py-1.5 px-4 text-sm">
-                      Schedule Match
-                    </button>
-                  )}
+                  <h3 className="font-bold text-slate-800 dark:text-white">No matches recorded</h3>
+                  <p className="text-sm text-slate-500 mt-1 mb-4">Create a match using Add Match.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {matches.map(m => (
-                    <MatchCard key={m._id} match={m} />
-                  ))}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {matches.map(m => (
+                      <MatchCard key={m._id} match={m} />
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* Tournaments Tab */}
-          {activeTab === 'tournaments' && (
-            <div>
-              {tournaments.length === 0 ? (
-                <div className="text-center py-16 bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl">
-                  <Trophy className="h-12 w-12 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
-                  <h3 className="font-bold text-slate-800 dark:text-white">No tournaments created yet</h3>
-                  <p className="text-sm text-slate-500 mt-1 mb-4">Run full league series or knockouts.</p>
-                  {isModerator && (
-                    <button onClick={() => setShowTournamentModal(true)} className="btn-primary py-1.5 px-4 text-sm">
-                      Create Tournament
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {tournaments.map(t => (
-                    <TournamentCard key={t._id} tournament={t} />
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          {/* Tournaments removed — matches will be custom only */}
 
           {/* Teams & Players Tab */}
           {activeTab === 'teams' && (
@@ -327,15 +348,7 @@ export default function Dashboard() {
                     <Users className="h-5 w-5 text-cricket-600" />
                     Teams List
                   </h3>
-                  {isModerator && (
-                    <button 
-                      onClick={() => setShowTeamModal(true)}
-                      className="p-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-                      title="Add Team"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </button>
-                  )}
+                  {/* Add Team button removed */}
                 </div>
 
                 {teams.length === 0 ? (
@@ -364,15 +377,7 @@ export default function Dashboard() {
                     <User className="h-5 w-5 text-cricket-600" />
                     Players List
                   </h3>
-                  {isModerator && (
-                    <button 
-                      onClick={() => setShowPlayerModal(true)}
-                      className="p-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-                      title="Add Player"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </button>
-                  )}
+                  {/* Add Player button removed */}
                 </div>
 
                 {players.length === 0 ? (
@@ -396,6 +401,103 @@ export default function Dashboard() {
             </div>
           )}
         </>
+      )}
+
+      {/* Admin Add Match Modal (create teams by name + members) */}
+      {showAdminMatchModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl w-full max-w-2xl p-6 relative">
+            <h3 className="text-xl font-bold mb-4 text-slate-800 dark:text-white">Add Match (Custom Teams)</h3>
+            <form onSubmit={handleAdminCreateMatch} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-500 mb-1">Home Team Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={homeTeamName}
+                    onChange={(e) => setHomeTeamName(e.target.value)}
+                    className="w-full p-2 border border-slate-300 dark:border-dark-border rounded-xl bg-transparent text-slate-900 dark:text-white"
+                    placeholder="e.g. Royal Strikers"
+                  />
+
+                  <label className="block text-sm font-semibold text-slate-500 mb-1 mt-3">Select Home Members</label>
+                  <div className="border border-slate-300 dark:border-dark-border rounded-xl p-3 max-h-48 overflow-y-auto space-y-2">
+                    {uniquePlayers
+                      .filter(p => !awayTeamMembers.includes(p._id))
+                      .map(p => (
+                      <label key={p._id} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                        <input
+                          type="checkbox"
+                          checked={homeTeamMembers.includes(p._id)}
+                          onChange={(e) => {
+                            const pid = p._id;
+                            if (e.target.checked) {
+                              setHomeTeamMembers(prev => prev.includes(pid) ? prev : [...prev, pid]);
+                              setAwayTeamMembers(prev => prev.filter(id => id !== pid));
+                            } else {
+                              setHomeTeamMembers(prev => prev.filter(id => id !== pid));
+                            }
+                          }}
+                          className="rounded text-cricket-500 focus:ring-cricket-500"
+                        />
+                        {p.name} ({p.role})
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-500 mb-1">Away Team Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={awayTeamName}
+                    onChange={(e) => setAwayTeamName(e.target.value)}
+                    className="w-full p-2 border border-slate-300 dark:border-dark-border rounded-xl bg-transparent text-slate-900 dark:text-white"
+                    placeholder="e.g. Desert Warriors"
+                  />
+
+                  <label className="block text-sm font-semibold text-slate-500 mb-1 mt-3">Select Away Members</label>
+                  <div className="border border-slate-300 dark:border-dark-border rounded-xl p-3 max-h-48 overflow-y-auto space-y-2">
+                      {uniquePlayers
+                        .filter(p => !homeTeamMembers.includes(p._id))
+                        .map(p => (
+                        <label key={p._id} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                          <input
+                            type="checkbox"
+                            checked={awayTeamMembers.includes(p._id)}
+                            onChange={(e) => {
+                              const pid = p._id;
+                              if (e.target.checked) {
+                                setAwayTeamMembers(prev => prev.includes(pid) ? prev : [...prev, pid]);
+                                setHomeTeamMembers(prev => prev.filter(id => id !== pid));
+                              } else {
+                                setAwayTeamMembers(prev => prev.filter(id => id !== pid));
+                              }
+                            }}
+                            className="rounded text-cricket-500 focus:ring-cricket-500"
+                          />
+                          {p.name} ({p.role})
+                        </label>
+                      ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button type="submit" className="btn-primary flex-1 py-2 text-sm">Create Match</button>
+                <button 
+                  type="button" 
+                  onClick={() => setShowAdminMatchModal(false)}
+                  className="btn-secondary py-2 text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* Match Scheduler Modal */}
@@ -430,44 +532,11 @@ export default function Dashboard() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-500 mb-1">Match Format</label>
-                  <select
-                    value={matchType}
-                    onChange={(e) => setMatchType(e.target.value)}
-                    className="w-full p-2 border border-slate-300 dark:border-dark-border rounded-xl bg-transparent text-slate-900 dark:text-white"
-                  >
-                    <option value="T20">T20</option>
-                    <option value="T10">T10</option>
-                    <option value="ODI">ODI</option>
-                    <option value="Custom">Custom</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-slate-500 mb-1">Overs</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="100"
-                    value={totalOvers}
-                    onChange={(e) => setTotalOvers(e.target.value)}
-                    className="w-full p-2 border border-slate-300 dark:border-dark-border rounded-xl bg-transparent text-slate-900 dark:text-white"
-                  />
-                </div>
+              <div>
+                <p className="text-sm text-slate-500">Match type: Custom (no T20/ODI selection)</p>
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-slate-500 mb-1">Tournament (Optional)</label>
-                <select
-                  value={matchTournamentId}
-                  onChange={(e) => setMatchTournamentId(e.target.value)}
-                  className="w-full p-2 border border-slate-300 dark:border-dark-border rounded-xl bg-transparent text-slate-900 dark:text-white"
-                >
-                  <option value="">Friendly Match (No Tournament)</option>
-                  {tournaments.map(t => <option key={t._id} value={t._id}>{t.name}</option>)}
-                </select>
-              </div>
+              {/* Matches are custom-only; tournament association removed */}
 
               <div className="flex gap-3 pt-2">
                 <button type="submit" className="btn-primary flex-1 py-2 text-sm">Create Match</button>
@@ -484,74 +553,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Tournament Creator Modal */}
-      {showTournamentModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl w-full max-w-md p-6 relative">
-            <h3 className="text-xl font-bold mb-4 text-slate-800 dark:text-white">Create New Tournament</h3>
-            <form onSubmit={handleCreateTournament} className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-slate-500 mb-1">Tournament Name</label>
-                <input
-                  type="text"
-                  required
-                  value={tournamentName}
-                  onChange={(e) => setTournamentName(e.target.value)}
-                  className="w-full p-2 border border-slate-300 dark:border-dark-border rounded-xl bg-transparent text-slate-900 dark:text-white"
-                  placeholder="e.g. CricBeas Premier Cup 2026"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-500 mb-1">Format</label>
-                <select
-                  value={tournamentFormat}
-                  onChange={(e) => setTournamentFormat(e.target.value)}
-                  className="w-full p-2 border border-slate-300 dark:border-dark-border rounded-xl bg-transparent text-slate-900 dark:text-white"
-                >
-                  <option value="League">League (Round-Robin)</option>
-                  <option value="Knockout">Knockout Brackets</option>
-                  <option value="League + Knockout">League + Knockout</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-500 mb-1">Select Participating Teams</label>
-                <div className="border border-slate-300 dark:border-dark-border rounded-xl p-3 max-h-40 overflow-y-auto space-y-2">
-                  {teams.map(t => (
-                    <label key={t._id} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-                      <input
-                        type="checkbox"
-                        checked={selectedTeams.includes(t._id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedTeams([...selectedTeams, t._id]);
-                          } else {
-                            setSelectedTeams(selectedTeams.filter(id => id !== t._id));
-                          }
-                        }}
-                        className="rounded text-cricket-500 focus:ring-cricket-500"
-                      />
-                      {t.name}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button type="submit" className="btn-primary flex-1 py-2 text-sm">Create League</button>
-                <button 
-                  type="button" 
-                  onClick={() => setShowTournamentModal(false)}
-                  className="btn-secondary py-2 text-sm"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Tournament UI removed per request */}
 
       {/* Team Creator Modal */}
       {showTeamModal && (

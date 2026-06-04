@@ -17,7 +17,7 @@ export default function MatchCard({ match }) {
     return (
       <div className="flex items-center justify-between font-sans">
         <span className="font-semibold text-slate-800 dark:text-slate-200">
-          {inn.teamId === homeTeam._id ? homeTeam.name : awayTeam.name}
+          {(inn.teamId?._id || inn.teamId)?.toString() === homeTeam._id?.toString() ? homeTeam.name : awayTeam.name}
         </span>
         <span className="font-bold text-slate-900 dark:text-white">
           {inn.runs}/{inn.wickets} <span className="text-xs font-normal text-slate-500">({inn.overs}.{inn.balls} ov)</span>
