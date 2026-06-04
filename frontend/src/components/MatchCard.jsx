@@ -1,7 +1,8 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Play, Eye, Settings, Calendar } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
 
 export default function MatchCard({ match }) {
   const { user } = useAuth();
@@ -25,7 +26,7 @@ export default function MatchCard({ match }) {
     );
   };
 
-  const isUserModerator = user && (user.role === 'Admin' || user.role === 'Organizer');
+  const isUserModerator = user && (['Super Admin', 'Master Host', 'Admin', 'Organizer'].includes(user.role));
 
   return (
     <div className="card hover:shadow-md transition-shadow duration-200 flex flex-col justify-between">
@@ -120,20 +121,34 @@ export default function MatchCard({ match }) {
           </Link>
         ) : (
           <>
-            {isUserModerator ? (
-              <Link to={`/matches/${match._id}/scoring`} className="btn-primary flex-1 py-1.5 text-xs">
-                <Play className="h-3.5 w-3.5" />
-                Start Match
-              </Link>
-            ) : (
-              <Link to={`/matches/${match._id}`} className="btn-secondary flex-1 py-1.5 text-xs">
-                <Eye className="h-3.5 w-3.5" />
-                Preview Details
-              </Link>
-            )}
+              {isUserModerator ? (
+                <StartButton match={match} homeTeam={homeTeam} />
+              ) : (
+                <Link to={`/matches/${match._id}`} className="btn-secondary flex-1 py-1.5 text-xs">
+                  <Eye className="h-3.5 w-3.5" />
+                  Preview Details
+                </Link>
+              )}
           </>
         )}
       </div>
     </div>
+  );
+}
+
+function StartButton({ match, homeTeam }) {
+  const navigate = useNavigate();
+  const [starting, setStarting] = useState(false);
+
+  const handleStart = async () => {
+    // Navigate to the Points page where toss/overs are collected
+    navigate(`/matches/${match._id}/points`);
+  };
+
+  return (
+    <button onClick={handleStart} disabled={starting} className="btn-primary flex-1 py-1.5 text-xs">
+      <Play className="h-3.5 w-3.5" />
+      {starting ? 'Starting...' : 'Start Match'}
+    </button>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Trophy, Phone, Lock, ArrowRight } from 'lucide-react';
+import { Trophy, Lock, ArrowRight } from 'lucide-react';
 
 export default function Login() {
   const { login, error: authError } = useAuth();
@@ -58,11 +58,10 @@ export default function Login() {
             {/* Username / Phone */}
             <div>
               <label htmlFor="phoneOrUsername" className="block text-sm font-semibold text-slate-650 dark:text-dark-text mb-1">
-                Username or Phone Number
+                Username
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <Phone className="h-5 w-5" />
                 </div>
                 <input
                   id="phoneOrUsername"
@@ -70,9 +69,9 @@ export default function Login() {
                   type="text"
                   required
                   value={phoneOrUsername}
-                  onChange={(e) => setPhoneOrUsername(e.target.value)}
+                  onChange={(e) => setPhoneOrUsername(e.target.value.toLowerCase().replace(/[^a-z]/g, ''))}
                   className="block w-full pl-10 pr-3 py-2 bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-900 dark:hover:bg-slate-850 dark:focus:bg-dark-card border border-slate-300 dark:border-dark-border rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cricket-500 focus:border-transparent transition-all"
-                  placeholder="Enter phone or username"
+                  placeholder="Enter username"
                 />
               </div>
             </div>
@@ -113,10 +112,7 @@ export default function Login() {
         </form>
 
         <div className="text-center text-sm text-slate-500 dark:text-dark-muted pt-4 border-t border-slate-100 dark:border-dark-border/50">
-          Don't have an account?{' '}
-          <Link to="/register" className="font-semibold text-cricket-600 dark:text-cricket-500 hover:underline">
-            Sign Up
-          </Link>
+          Only admin can create new users.
         </div>
       </div>
     </div>

@@ -68,11 +68,10 @@ export const AuthProvider = ({ children }) => {
         const fullUser = await meRes.json();
         setUser(fullUser);
         return fullUser;
-      } else {
+        } else {
         setUser({
           _id: data._id,
           username: data.username,
-          phone: data.phone,
           role: data.role,
           playerId: data.playerId,
         });
@@ -112,11 +111,10 @@ export const AuthProvider = ({ children }) => {
         const fullUser = await meRes.json();
         setUser(fullUser);
         return fullUser;
-      } else {
+        } else {
         setUser({
           _id: data._id,
           username: data.username,
-          phone: data.phone,
           role: data.role,
           playerId: data.playerId,
         });

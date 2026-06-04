@@ -10,6 +10,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import TournamentDetail from './pages/TournamentDetail';
 import MatchScoring from './pages/MatchScoring';
+import MatchPoints from './pages/MatchPoints';
 import MatchDetail from './pages/MatchDetail';
 import PlayerDetail from './pages/PlayerDetail';
 import TeamDetail from './pages/TeamDetail';
@@ -33,11 +34,11 @@ function ToastContainer() {
           }`}
         >
           <div className="p-1 rounded-lg bg-white/20">
-            {alert.type === 'wicket' ? <Activity className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+            {alert.type === 'wicket' ? <Activity className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
           </div>
           
           <div className="flex-grow">
-            <span className="text-xs uppercase font-extrabold tracking-wider opacity-90">
+            <span className="text-xs font-extrabold tracking-wider uppercase opacity-90">
               {alert.type === 'wicket' ? 'Wicket Alert' : 'Boundary Alert'}
             </span>
             <p className="text-sm font-semibold mt-0.5">{alert.message}</p>
@@ -47,7 +48,7 @@ function ToastContainer() {
             onClick={() => removeAlert(alert.id)}
             className="p-0.5 hover:bg-white/20 rounded transition-colors text-white/80"
           >
-            <X className="h-4 w-4" />
+            <X className="w-4 h-4" />
           </button>
         </div>
       ))}
@@ -60,8 +61,8 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center dark:bg-dark-bg">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-cricket-600"></div>
+      <div className="flex items-center justify-center min-h-screen dark:bg-dark-bg">
+        <div className="w-10 h-10 border-t-2 rounded-full animate-spin border-cricket-600"></div>
       </div>
     );
   }
@@ -77,9 +78,11 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
   return children;
 }
 
+const adminRoles = ['Super Admin', 'Master Host', 'Admin'];
+
 function MainAppContent() {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-dark-bg dark:text-dark-text transition-colors duration-200">
+    <div className="flex flex-col min-h-screen transition-colors duration-200 bg-slate-50 text-slate-900 dark:bg-dark-bg dark:text-dark-text">
       <Navbar />
       <ToastContainer />
       <main className="flex-grow pb-12">
@@ -94,16 +97,31 @@ function MainAppContent() {
           
           {/* Auth */}
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route
+            path="/register"
+            element={
+              <ProtectedRoute allowedRoles={adminRoles}>
+                <Register />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Secured Scoring Panel (Admins & Organizers can score) */}
           <Route 
             path="/matches/:id/scoring" 
             element={
-              <ProtectedRoute allowedRoles={['Admin', 'Organizer']}>
+              <ProtectedRoute allowedRoles={adminRoles}>
                 <MatchScoring />
               </ProtectedRoute>
             } 
+          />
+          <Route 
+            path="/matches/:id/points"
+            element={
+              <ProtectedRoute allowedRoles={adminRoles}>
+                <MatchPoints />
+              </ProtectedRoute>
+            }
           />
           
           <Route path="*" element={<Navigate to="/" replace />} />

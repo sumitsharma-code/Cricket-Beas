@@ -55,8 +55,9 @@ const authorizeScorer = async (req, res, next) => {
 
     const userIdStr = req.user._id.toString();
     
-    // Super Admins bypass checking
-    if (req.user.role === 'Super Admin') {
+    // Allow Super Admins, Master Host, and Admin roles to act as scorers
+    const bypassRoles = ['Super Admin', 'Master Host', 'Admin'];
+    if (bypassRoles.includes(req.user.role)) {
       return next();
     }
 

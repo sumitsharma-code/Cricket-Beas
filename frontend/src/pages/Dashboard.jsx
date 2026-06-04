@@ -3,7 +3,7 @@ import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import MatchCard from '../components/MatchCard';
 import TournamentCard from '../components/TournamentCard';
-import { Plus, Calendar, Trophy, Users, User, RefreshCw, Activity } from 'lucide-react';
+import { Plus, Calendar, Trophy, Users, User, RefreshCw, Activity, UserPlus } from 'lucide-react';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -21,6 +21,7 @@ export default function Dashboard() {
   const [showTournamentModal, setShowTournamentModal] = useState(false);
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [showPlayerModal, setShowPlayerModal] = useState(false);
+  const [showUserModal, setShowUserModal] = useState(false);
 
   // New Match fields
   const [homeTeamId, setHomeTeamId] = useState('');
@@ -44,7 +45,8 @@ export default function Dashboard() {
   const [battingStyle, setBattingStyle] = useState('Right-hand Batsman');
   const [bowlingStyle, setBowlingStyle] = useState('None');
 
-  const isModerator = user && (user.role === 'Admin' || user.role === 'Organizer');
+  const isModerator = user && ['Super Admin', 'Master Host', 'Admin', 'Organizer'].includes(user.role);
+  const isAdmin = user && ['Super Admin', 'Master Host', 'Admin'].includes(user.role);
 
   const fetchData = async () => {
     setLoading(true);
@@ -146,10 +148,41 @@ export default function Dashboard() {
     }
   };
 
+  const [newUsername, setNewUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+
+    const trimmedUsername = newUsername.trim();
+    if (!trimmedUsername || !newPassword) {
+      alert('Username and password are required');
+      return;
+    }
+
+    try {
+      await api.createUser({
+        username: trimmedUsername.toLowerCase(),
+        password: newPassword,
+        role: 'Player',
+        name: trimmedUsername.toLowerCase(),
+      });
+
+      setShowUserModal(false);
+      setNewUsername('');
+      setNewPassword('');
+      fetchData();
+      alert('User created successfully');
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-cricket-600 to-teal-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg mb-8 relative overflow-hidden">
+      <div className="bg-linear-to-r from-cricket-600 to-teal-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg mb-8 relative overflow-hidden">
         <div className="absolute right-0 bottom-0 opacity-10 transform translate-x-1/4 translate-y-1/4 scale-150">
           <Trophy className="w-96 h-96" />
         </div>
@@ -161,6 +194,14 @@ export default function Dashboard() {
             Track runs, wickets, points tables, and career statistics on CricBeas, the premium platform for local tournaments.
           </p>
           <div className="flex flex-wrap gap-3">
+            {isAdmin && (
+              <button 
+                onClick={() => setShowUserModal(true)}
+                className="bg-emerald-500 text-white hover:bg-emerald-600 font-bold px-4 py-2 rounded-xl text-sm transition-colors shadow flex items-center gap-1.5"
+              >
+                <UserPlus className="h-4 w-4" /> Add User
+              </button>
+            )}
             {isModerator && (
               <>
                 <button 
@@ -634,6 +675,58 @@ export default function Dashboard() {
                 <button 
                   type="button" 
                   onClick={() => setShowPlayerModal(false)}
+                  className="btn-secondary py-2 text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* User Creator Modal */}
+      {showUserModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl w-full max-w-lg p-6 relative">
+            <h3 className="text-xl font-bold mb-2 text-slate-800 dark:text-white">Add New User</h3>
+            <p className="text-sm text-slate-500 dark:text-dark-muted mb-4">
+              Create a login and profile. Username will be used as the display name.
+            </p>
+            <form onSubmit={handleCreateUser} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-500 mb-1">Username</label>
+                  <input
+                    type="text"
+                    required
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value.toLowerCase().replace(/[^a-z]/g, ''))}
+                    className="w-full p-2 border border-slate-300 dark:border-dark-border rounded-xl bg-transparent text-slate-900 dark:text-white"
+                    placeholder="lowercase letters only"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-500 mb-1">Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full p-2 border border-slate-300 dark:border-dark-border rounded-xl bg-transparent text-slate-900 dark:text-white"
+                    placeholder="Temporary password"
+                  />
+                </div>
+              </div>
+
+              {/* Profile details removed for admin add-user flow; only credentials are required */}
+
+              <div className="flex gap-3 pt-2">
+                <button type="submit" className="btn-primary flex-1 py-2 text-sm">Create User</button>
+                <button 
+                  type="button" 
+                  onClick={() => setShowUserModal(false)}
                   className="btn-secondary py-2 text-sm"
                 >
                   Cancel

@@ -6,13 +6,8 @@ const UserSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
-  },
-  phone: {
-    type: String,
-    required: false,
-    unique: true,
-    sparse: true,
-    trim: true,
+    lowercase: true,
+    match: [/^[a-z]+$/, 'Username must contain lowercase letters only'],
   },
   password: {
     type: String,
@@ -21,7 +16,7 @@ const UserSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ['Super Admin', 'Master Host', 'Team Manager', 'Player', 'Viewer'],
-    default: 'Viewer',
+    default: 'Player',
   },
   playerId: {
     type: mongoose.Schema.Types.ObjectId,

@@ -112,7 +112,7 @@ export default function TeamDetail() {
             <h1 className="text-2xl font-black text-slate-800 dark:text-white">{team.name}</h1>
             {team.managerId && (
               <p className="text-xs text-slate-400 mt-1">
-                Manager: <span className="font-semibold">{team.managerId.username}</span> ({team.managerId.phone})
+                Manager: <span className="font-semibold">{team.managerId.username}</span>
               </p>
             )}
           </div>

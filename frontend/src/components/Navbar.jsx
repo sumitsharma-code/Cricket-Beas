@@ -87,11 +87,8 @@ export default function Navbar() {
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
-                  <Link to="/login" className="text-slate-650 dark:text-slate-300 hover:text-cricket-600 font-medium">
+                  <Link to="/login" className="btn-primary py-1.5 px-4 text-sm">
                     Login
-                  </Link>
-                  <Link to="/register" className="btn-primary py-1.5 px-4 text-sm">
-                    Sign Up
                   </Link>
                 </div>
               )}

@@ -32,6 +32,13 @@ export const api = {
       body: JSON.stringify(playerData)
     }).then(handleResponse),
 
+  createUser: (userData) =>
+    fetch(`${API_URL}/auth/register`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(userData)
+    }).then(handleResponse),
+
   updatePlayer: (id, playerData) => 
     fetch(`${API_URL}/players/${id}`, {
       method: 'PUT',

@@ -13,9 +13,7 @@ exports.register = async (req, res) => {
   try {
     const { 
       username, 
-      phone, 
       password, 
-      role,
       name,
       photo,
       playerRole,
@@ -23,9 +21,12 @@ exports.register = async (req, res) => {
       bowlingStyle 
     } = req.body;
 
-    const userExists = await User.findOne({ $or: [{ phone }, { username }] });
+    // Ignore any client-provided role to prevent privilege escalation.
+    const serverRole = 'Player';
+
+    const userExists = await User.findOne({ username });
     if (userExists) {
-      return res.status(400).json({ message: 'User already exists with this phone number or username' });
+      return res.status(400).json({ message: 'User already exists with this username' });
     }
 
     // Hash password
@@ -34,8 +35,8 @@ exports.register = async (req, res) => {
 
     let linkedPlayerId = null;
 
-    // If the role is Player, or player info is provided, create a Player document
-    if (role === 'Player' || name) {
+    // If explicit player info is provided (name), create a Player document
+    if (name) {
       const player = new Player({
         name: name || username,
         photo: photo || '',
@@ -49,16 +50,14 @@ exports.register = async (req, res) => {
 
     const user = await User.create({
       username,
-      phone,
       password: hashedPassword,
-      role: role || 'Player',
+      role: serverRole,
       playerId: linkedPlayerId,
     });
 
     res.status(201).json({
       _id: user._id,
       username: user.username,
-      phone: user.phone,
       role: user.role,
       playerId: user.playerId,
       token: generateToken(user._id),
@@ -73,9 +72,8 @@ exports.login = async (req, res) => {
   try {
     const { phoneOrUsername, password } = req.body;
 
-    const user = await User.findOne({
-      $or: [{ phone: phoneOrUsername }, { username: phoneOrUsername }]
-    }).populate('playerId');
+    // Treat incoming identifier as username (phone removed)
+    const user = await User.findOne({ username: phoneOrUsername }).populate('playerId');
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -89,7 +87,6 @@ exports.login = async (req, res) => {
     res.json({
       _id: user._id,
       username: user.username,
-      phone: user.phone,
       role: user.role,
       playerId: user.playerId ? user.playerId._id : null,
       playerProfile: user.playerId,
