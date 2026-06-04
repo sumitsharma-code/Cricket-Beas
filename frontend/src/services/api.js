@@ -1,4 +1,13 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const getApiUrl = () => {
+  let url = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+    if (!url.endsWith('/api') && !url.endsWith('/api/')) {
+      url = url.replace(/\/$/, '') + '/api';
+    }
+  }
+  return url;
+};
+const API_URL = getApiUrl();
 
 const getHeaders = () => {
   const token = localStorage.getItem('cricbeas_token');
