@@ -5,6 +5,8 @@ const getApiUrl = () => {
       url = url.replace(/\/$/, '') + '/api';
     }
   }
+  console.log('API URL:', url);
+  console.log('VITE_API_URL env:', import.meta.env.VITE_API_URL);
   return url;
 };
 const API_URL = getApiUrl();
@@ -21,6 +23,7 @@ const getHeaders = () => {
 const handleResponse = async (res) => {
   const data = await res.json();
   if (!res.ok) {
+    console.error('API Error:', data);
     throw new Error(data.message || 'API request failed');
   }
   return data;
