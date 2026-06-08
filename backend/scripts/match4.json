@@ -1,0 +1,362 @@
+{
+  "matchId": null,
+  "date": "2026-06-04",
+  "teams": [
+    "Underarm Kashi",
+    "Randi Rana"
+  ],
+  "venue": null,
+  "oversPerInnings": 8,
+  "summaryOnly": true,
+  "source": "summary-pdf",
+  "importedAt": "2026-06-05T12:00:00Z",
+  "result": {
+    "winner": "Randi Rana",
+    "margin": "6 wickets",
+    "method": "wickets"
+  },
+  "innings": [
+    {
+      "team": "Underarm Kashi",
+      "total": 35,
+      "wickets": 7,
+      "overs": "8.0",
+      "runRate": 4.38,
+      "batting": [
+        {
+          "name": "Darshil",
+          "playerId": null,
+          "runs": 3,
+          "balls": 6,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Anurag",
+          "notOut": false,
+          "sr": 50.0
+        },
+        {
+          "name": "Yuvraj",
+          "playerId": null,
+          "runs": 1,
+          "balls": 5,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Sumit",
+          "notOut": false,
+          "sr": 20.0
+        },
+        {
+          "name": "Shubhdeep",
+          "playerId": null,
+          "runs": 0,
+          "balls": 2,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Sumit",
+          "notOut": false,
+          "sr": 0.0
+        },
+        {
+          "name": "Akash",
+          "playerId": null,
+          "runs": 21,
+          "balls": 14,
+          "fours": 1,
+          "sixes": 2,
+          "dismissal": "b Sumit",
+          "notOut": false,
+          "sr": 150.0
+        },
+        {
+          "name": "Malak",
+          "playerId": null,
+          "runs": 0,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Anurag",
+          "notOut": false,
+          "sr": 0.0
+        },
+        {
+          "name": "Shabad",
+          "playerId": null,
+          "runs": 1,
+          "balls": 3,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Piyush",
+          "notOut": false,
+          "sr": 33.33
+        },
+        {
+          "name": "Ekam",
+          "playerId": null,
+          "runs": 1,
+          "balls": 2,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "c Shivansh b Piyush",
+          "notOut": false,
+          "sr": 50.0
+        }
+      ],
+      "bowling": [
+        {
+          "name": "Anurag",
+          "playerId": null,
+          "overs": "2.0",
+          "maidens": 0,
+          "runs": 8,
+          "wickets": 2,
+          "econ": 4.0
+        },
+        {
+          "name": "Sumit",
+          "playerId": null,
+          "overs": "2.0",
+          "maidens": 0,
+          "runs": 8,
+          "wickets": 3,
+          "econ": 4.0
+        },
+        {
+          "name": "Piyush",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 5,
+          "wickets": 2,
+          "econ": 5.0
+        },
+        {
+          "name": "Aryan",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 14,
+          "wickets": 0,
+          "econ": 14.0
+        }
+      ],
+      "extras": {
+        "byes": 0,
+        "legByes": 0,
+        "wides": 7,
+        "noBalls": 1,
+        "penalty": 0,
+        "total": 8
+      },
+      "fallOfWickets": [
+        {
+          "player": "Yuvraj",
+          "score": 9,
+          "wicketNumber": 1,
+          "over": "1.3"
+        },
+        {
+          "player": "Shubhdeep",
+          "score": 9,
+          "wicketNumber": 2,
+          "over": "1.5"
+        },
+        {
+          "player": "Darshil",
+          "score": 9,
+          "wicketNumber": 3,
+          "over": "2.1"
+        },
+        {
+          "player": "Malak",
+          "score": 9,
+          "wicketNumber": 4,
+          "over": "2.2"
+        },
+        {
+          "player": "Shabad",
+          "score": 14,
+          "wicketNumber": 5,
+          "over": "3.1"
+        },
+        {
+          "player": "Ekam",
+          "score": 19,
+          "wicketNumber": 6,
+          "over": "4.0"
+        },
+        {
+          "player": "Akash",
+          "score": 35,
+          "wicketNumber": 7,
+          "over": "5.2"
+        }
+      ]
+    },
+    {
+      "team": "Randi Rana",
+      "total": 37,
+      "wickets": 4,
+      "overs": "6.5",
+      "runRate": 5.41,
+      "batting": [
+        {
+          "name": "Nikhil",
+          "playerId": null,
+          "runs": 0,
+          "balls": 2,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Ekam",
+          "notOut": false,
+          "sr": 0.0
+        },
+        {
+          "name": "Shivansh",
+          "playerId": null,
+          "runs": 7,
+          "balls": 5,
+          "fours": 1,
+          "sixes": 0,
+          "dismissal": "b Shabad",
+          "notOut": false,
+          "sr": 140.0
+        },
+        {
+          "name": "Anurag",
+          "playerId": null,
+          "runs": 0,
+          "balls": 2,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Ekam",
+          "notOut": false,
+          "sr": 0.0
+        },
+        {
+          "name": "Piyush",
+          "playerId": null,
+          "runs": 20,
+          "balls": 22,
+          "fours": 2,
+          "sixes": 1,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 90.91
+        },
+        {
+          "name": "Sumit",
+          "playerId": null,
+          "runs": 0,
+          "balls": 5,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Shubhdeep",
+          "notOut": false,
+          "sr": 0.0
+        },
+        {
+          "name": "Aryan",
+          "playerId": null,
+          "runs": 3,
+          "balls": 7,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 42.86
+        }
+      ],
+      "bowling": [
+        {
+          "name": "Ekam",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 5,
+          "wickets": 2,
+          "econ": 5.0
+        },
+        {
+          "name": "Yuvraj",
+          "playerId": null,
+          "overs": "2.0",
+          "maidens": 0,
+          "runs": 11,
+          "wickets": 0,
+          "econ": 5.5
+        },
+        {
+          "name": "Shabad",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 5,
+          "wickets": 1,
+          "econ": 5.0
+        },
+        {
+          "name": "Shubhdeep",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 6,
+          "wickets": 1,
+          "econ": 6.0
+        },
+        {
+          "name": "Darshil",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 5,
+          "wickets": 0,
+          "econ": 5.0
+        },
+        {
+          "name": "Akash",
+          "playerId": null,
+          "overs": "0.5",
+          "maidens": 0,
+          "runs": 5,
+          "wickets": 0,
+          "econ": 6.0
+        }
+      ],
+      "extras": {
+        "byes": 0,
+        "legByes": 0,
+        "wides": 5,
+        "noBalls": 2,
+        "penalty": 0,
+        "total": 7
+      },
+      "fallOfWickets": [
+        {
+          "player": "Nikhil",
+          "score": 1,
+          "wicketNumber": 1,
+          "over": "0.2"
+        },
+        {
+          "player": "Anurag",
+          "score": 2,
+          "wicketNumber": 2,
+          "over": "0.4"
+        },
+        {
+          "player": "Shivansh",
+          "score": 15,
+          "wicketNumber": 3,
+          "over": "2.2"
+        },
+        {
+          "player": "Sumit",
+          "score": 19,
+          "wicketNumber": 4,
+          "over": "3.3"
+        }
+      ]
+    }
+  ],
+  "summaryRaw": "Randi Rana won by 6 wickets. Underarm Kashi 35-7 (8.0), Randi Rana 37-4 (6.5)"
+}

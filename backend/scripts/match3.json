@@ -1,0 +1,291 @@
+{
+  "matchId": null,
+  "date": "2026-06-04",
+  "teams": [
+    "Sumit De Shakke",
+    "Shubh De Sexos"
+  ],
+  "venue": null,
+  "oversPerInnings": 8,
+  "summaryOnly": true,
+  "source": "summary-pdf",
+  "importedAt": "2026-06-05T12:00:00Z",
+  "result": {
+    "winner": "Shubh De Sexos",
+    "margin": "8 wickets",
+    "method": "wickets"
+  },
+  "innings": [
+    {
+      "team": "Sumit De Shakke",
+      "total": 33,
+      "wickets": 3,
+      "overs": "8.0",
+      "runRate": 4.13,
+      "batting": [
+        {
+          "name": "Piyush",
+          "playerId": null,
+          "runs": 24,
+          "balls": 27,
+          "fours": 1,
+          "sixes": 2,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 88.89
+        },
+        {
+          "name": "Shivansh",
+          "playerId": null,
+          "runs": 2,
+          "balls": 7,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Anurag",
+          "notOut": false,
+          "sr": 28.57
+        },
+        {
+          "name": "Akash",
+          "playerId": null,
+          "runs": 0,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "c Shubhdeep b Anurag",
+          "notOut": false,
+          "sr": 0.0
+        },
+        {
+          "name": "Sumit",
+          "playerId": null,
+          "runs": 0,
+          "balls": 4,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Daman",
+          "notOut": false,
+          "sr": 0.0
+        },
+        {
+          "name": "Yuvraj",
+          "playerId": null,
+          "runs": 2,
+          "balls": 9,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 22.22
+        }
+      ],
+      "bowling": [
+        {
+          "name": "Daman",
+          "playerId": null,
+          "overs": "2.0",
+          "maidens": 0,
+          "runs": 2,
+          "wickets": 1,
+          "econ": 1.0
+        },
+        {
+          "name": "Aryan",
+          "playerId": null,
+          "overs": "2.0",
+          "maidens": 0,
+          "runs": 8,
+          "wickets": 0,
+          "econ": 4.0
+        },
+        {
+          "name": "Akash",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 8,
+          "wickets": 0,
+          "econ": 8.0
+        },
+        {
+          "name": "Anurag",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 1,
+          "runs": 0,
+          "wickets": 2,
+          "econ": 0.0
+        },
+        {
+          "name": "Shabad",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 6,
+          "wickets": 0,
+          "econ": 6.0
+        },
+        {
+          "name": "Shubhdeep",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 8,
+          "wickets": 0,
+          "econ": 8.0
+        }
+      ],
+      "extras": {
+        "byes": 0,
+        "legByes": 1,
+        "wides": 4,
+        "noBalls": 0,
+        "penalty": 0,
+        "total": 5
+      },
+      "fallOfWickets": [
+        {
+          "player": "Shivansh",
+          "score": 13,
+          "wicketNumber": 1,
+          "over": "3.2"
+        },
+        {
+          "player": "Akash",
+          "score": 13,
+          "wicketNumber": 2,
+          "over": "3.3"
+        },
+        {
+          "player": "Sumit",
+          "score": 19,
+          "wicketNumber": 3,
+          "over": "5.1"
+        }
+      ]
+    },
+    {
+      "team": "Shubh De Sexos",
+      "total": 34,
+      "wickets": 2,
+      "overs": "6.0",
+      "runRate": 5.67,
+      "batting": [
+        {
+          "name": "Daman",
+          "playerId": null,
+          "runs": 11,
+          "balls": 19,
+          "fours": 1,
+          "sixes": 0,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 57.89
+        },
+        {
+          "name": "Nikhil",
+          "playerId": null,
+          "runs": 5,
+          "balls": 6,
+          "fours": 1,
+          "sixes": 0,
+          "dismissal": "b Ekam",
+          "notOut": false,
+          "sr": 83.33
+        },
+        {
+          "name": "Shabad",
+          "playerId": null,
+          "runs": 5,
+          "balls": 12,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Piyush",
+          "notOut": false,
+          "sr": 41.67
+        },
+        {
+          "name": "Aryan",
+          "playerId": null,
+          "runs": 1,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 100.0
+        }
+      ],
+      "bowling": [
+        {
+          "name": "Ekam",
+          "playerId": null,
+          "overs": "2.0",
+          "maidens": 0,
+          "runs": 10,
+          "wickets": 1,
+          "econ": 5.0
+        },
+        {
+          "name": "Akash",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 9,
+          "wickets": 0,
+          "econ": 9.0
+        },
+        {
+          "name": "Sumit",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 9,
+          "wickets": 0,
+          "econ": 9.0
+        },
+        {
+          "name": "Yuvraj",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 3,
+          "wickets": 0,
+          "econ": 3.0
+        },
+        {
+          "name": "Piyush",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 3,
+          "wickets": 1,
+          "econ": 3.0
+        }
+      ],
+      "extras": {
+        "byes": 0,
+        "legByes": 0,
+        "wides": 10,
+        "noBalls": 2,
+        "penalty": 0,
+        "total": 12
+      },
+      "fallOfWickets": [
+        {
+          "player": "Nikhil",
+          "score": 13,
+          "wicketNumber": 1,
+          "over": "2.1"
+        },
+        {
+          "player": "Shabad",
+          "score": 32,
+          "wicketNumber": 2,
+          "over": "5.3"
+        }
+      ]
+    }
+  ],
+  "summaryRaw": "Shubh De Sexos won by 8 wickets. Sumit De Shakke 33-3 (8.0), Shubh De Sexos 34-2 (6.0)"
+}

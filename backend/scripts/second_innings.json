@@ -1,0 +1,72 @@
+{
+  "team": "sumit ke chhudu",
+  "score": 21,
+  "wickets": 4,
+  "overs": 5.4,
+  "extras": 9,
+  "battingRuns": 12,
+  "batting": [
+    {
+      "name": "Y",
+      "runs": 0,
+      "balls": 2,
+      "dismissal": "b Shabad"
+    },
+    {
+      "name": "Armansingh",
+      "runs": 10,
+      "balls": 16,
+      "dismissal": "b Abhijot"
+    },
+    {
+      "name": "Mohit",
+      "runs": 2,
+      "balls": 6,
+      "dismissal": "b Aryan"
+    },
+    {
+      "name": "Anurag",
+      "runs": 0,
+      "balls": 2,
+      "dismissal": "c Shabad b Aryan"
+    },
+    {
+      "name": "Yuvraj",
+      "runs": 0,
+      "balls": 3,
+      "dismissal": "run out (X)"
+    },
+    {
+      "name": "Sumit",
+      "runs": 0,
+      "balls": 5,
+      "dismissal": "b Aryan"
+    }
+  ],
+  "bowling": [
+    {
+      "name": "Aryan",
+      "overs": 1.4,
+      "runs": 9,
+      "wickets": 3
+    },
+    {
+      "name": "Abhijot",
+      "overs": 1,
+      "runs": 3,
+      "wickets": 1
+    },
+    {
+      "name": "Shabad",
+      "overs": 2,
+      "runs": 4,
+      "wickets": 1
+    },
+    {
+      "name": "Darshil",
+      "overs": 1,
+      "runs": 5,
+      "wickets": 0
+    }
+  ]
+}

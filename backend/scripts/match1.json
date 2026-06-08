@@ -1,0 +1,342 @@
+{
+  "matchId": null,
+  "date": "2026-06-04",
+  "teams": [
+    "Piyush Ki Pussies",
+    "SHUBH ki SAHELIYA"
+  ],
+  "venue": null,
+  "oversPerInnings": 7,
+  "summaryOnly": true,
+  "source": "summary-pdf",
+  "importedAt": "2026-06-05T12:00:00Z",
+  "result": {
+    "winner": "Piyush Ki Pussies",
+    "margin": "16 runs",
+    "method": "runs"
+  },
+  "innings": [
+    {
+      "team": "Piyush Ki Pussies",
+      "total": 51,
+      "wickets": 4,
+      "overs": "7.0",
+      "runRate": 7.29,
+      "batting": [
+        {
+          "name": "Piyush",
+          "playerId": null,
+          "runs": 14,
+          "balls": 11,
+          "fours": 1,
+          "sixes": 1,
+          "dismissal": "b Yuvraj",
+          "notOut": false,
+          "sr": 127.27
+        },
+        {
+          "name": "Nikhil",
+          "playerId": null,
+          "runs": 10,
+          "balls": 14,
+          "fours": 1,
+          "sixes": 0,
+          "dismissal": "b Sehaj",
+          "notOut": false,
+          "sr": 71.43
+        },
+        {
+          "name": "Darshil",
+          "playerId": null,
+          "runs": 6,
+          "balls": 6,
+          "fours": 1,
+          "sixes": 0,
+          "dismissal": "b Shubhdeep",
+          "notOut": false,
+          "sr": 100.0
+        },
+        {
+          "name": "Malak",
+          "playerId": null,
+          "runs": 0,
+          "balls": 5,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 0.0
+        },
+        {
+          "name": "Akash",
+          "playerId": null,
+          "runs": 0,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Sehaj",
+          "notOut": false,
+          "sr": 0.0
+        },
+        {
+          "name": "Gursimrat",
+          "playerId": null,
+          "runs": 1,
+          "balls": 7,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 14.29
+        }
+      ],
+      "bowling": [
+        {
+          "name": "Aryan",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 14,
+          "wickets": 0,
+          "econ": 14.0
+        },
+        {
+          "name": "Shubhdeep",
+          "playerId": null,
+          "overs": "2.0",
+          "maidens": 0,
+          "runs": 14,
+          "wickets": 1,
+          "econ": 7.0
+        },
+        {
+          "name": "Yuvraj",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 7,
+          "wickets": 1,
+          "econ": 7.0
+        },
+        {
+          "name": "Anurag",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 4,
+          "wickets": 0,
+          "econ": 4.0
+        },
+        {
+          "name": "Sehaj",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 12,
+          "wickets": 2,
+          "econ": 12.0
+        },
+        {
+          "name": "Darshil",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 1,
+          "runs": 0,
+          "wickets": 0,
+          "econ": 0.0
+        }
+      ],
+      "extras": {
+        "byes": 0,
+        "legByes": 0,
+        "wides": 18,
+        "noBalls": 2,
+        "penalty": 0,
+        "total": 20
+      },
+      "fallOfWickets": [
+        {
+          "player": "Piyush",
+          "score": 25,
+          "wicketNumber": 1,
+          "over": "2.4"
+        },
+        {
+          "player": "Darshil",
+          "score": 37,
+          "wicketNumber": 2,
+          "over": "4.2"
+        },
+        {
+          "player": "Nikhil",
+          "score": 50,
+          "wicketNumber": 3,
+          "over": "5.4"
+        },
+        {
+          "player": "Akash",
+          "score": 50,
+          "wicketNumber": 4,
+          "over": "5.5"
+        }
+      ]
+    },
+    {
+      "team": "SHUBH ki SAHELIYA",
+      "total": 35,
+      "wickets": 4,
+      "overs": "7.0",
+      "runRate": 5.0,
+      "batting": [
+        {
+          "name": "Aryan",
+          "playerId": null,
+          "runs": 2,
+          "balls": 7,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "c Malak b Akash",
+          "notOut": false,
+          "sr": 28.57
+        },
+        {
+          "name": "Shivansh",
+          "playerId": null,
+          "runs": 3,
+          "balls": 5,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "c Piyush b Malak",
+          "notOut": false,
+          "sr": 60.0
+        },
+        {
+          "name": "Anurag",
+          "playerId": null,
+          "runs": 12,
+          "balls": 10,
+          "fours": 2,
+          "sixes": 0,
+          "dismissal": "c & b Piyush",
+          "notOut": false,
+          "sr": 120.0
+        },
+        {
+          "name": "Yuvraj",
+          "playerId": null,
+          "runs": 7,
+          "balls": 8,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Akash",
+          "notOut": false,
+          "sr": 87.5
+        },
+        {
+          "name": "Shubhdeep",
+          "playerId": null,
+          "runs": 1,
+          "balls": 10,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 10.0
+        },
+        {
+          "name": "Sehaj",
+          "playerId": null,
+          "runs": 0,
+          "balls": 2,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 0.0
+        }
+      ],
+      "bowling": [
+        {
+          "name": "Darshil",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 4,
+          "wickets": 0,
+          "econ": 4.0
+        },
+        {
+          "name": "Akash",
+          "playerId": null,
+          "overs": "2.0",
+          "maidens": 0,
+          "runs": 4,
+          "wickets": 2,
+          "econ": 2.0
+        },
+        {
+          "name": "Malak",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 10,
+          "wickets": 1,
+          "econ": 10.0
+        },
+        {
+          "name": "Gursimrat",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 9,
+          "wickets": 0,
+          "econ": 9.0
+        },
+        {
+          "name": "Piyush",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 8,
+          "wickets": 1,
+          "econ": 8.0
+        }
+      ],
+      "extras": {
+        "byes": 0,
+        "legByes": 0,
+        "wides": 10,
+        "noBalls": 0,
+        "penalty": 0,
+        "total": 10
+      },
+      "fallOfWickets": [
+        {
+          "player": "Aryan",
+          "score": 7,
+          "wicketNumber": 1,
+          "over": "1.5"
+        },
+        {
+          "player": "Shivansh",
+          "score": 9,
+          "wicketNumber": 2,
+          "over": "2.1"
+        },
+        {
+          "player": "Anurag",
+          "score": 34,
+          "wicketNumber": 3,
+          "over": "4.4"
+        },
+        {
+          "player": "Yuvraj",
+          "score": 34,
+          "wicketNumber": 4,
+          "over": "5.2"
+        }
+      ]
+    }
+  ],
+  "summaryRaw": "Piyush Ki Pussies won by 16 runs. Piyush Ki Pussies 51-4 (7.0), SHUBH ki SAHELIYA 35-4 (7.0)"
+}

@@ -1,0 +1,331 @@
+{
+  "matchId": null,
+  "date": "2026-06-04",
+  "teams": [
+    "Pussy Distroyers",
+    "Daily Gooners"
+  ],
+  "venue": null,
+  "oversPerInnings": 7,
+  "summaryOnly": true,
+  "source": "summary-pdf",
+  "importedAt": "2026-06-05T12:00:00Z",
+  "result": {
+    "winner": "Pussy Distroyers",
+    "margin": "2 runs",
+    "method": "runs"
+  },
+  "innings": [
+    {
+      "team": "Pussy Distroyers",
+      "total": 35,
+      "wickets": 6,
+      "overs": "7.0",
+      "runRate": 5.0,
+      "batting": [
+        {
+          "name": "Akash",
+          "playerId": null,
+          "runs": 0,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Shubhdeep",
+          "notOut": false,
+          "sr": 0
+        },
+        {
+          "name": "Piyush",
+          "playerId": null,
+          "runs": 0,
+          "balls": 4,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Aryan",
+          "notOut": false,
+          "sr": 0
+        },
+        {
+          "name": "Malak",
+          "playerId": null,
+          "runs": 10,
+          "balls": 19,
+          "fours": 1,
+          "sixes": 0,
+          "dismissal": "b Aryan",
+          "notOut": false,
+          "sr": 52.63
+        },
+        {
+          "name": "Nikhil",
+          "playerId": null,
+          "runs": 4,
+          "balls": 9,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Aryan",
+          "notOut": false,
+          "sr": 44.44
+        },
+        {
+          "name": "Darshil",
+          "playerId": null,
+          "runs": 1,
+          "balls": 3,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Shivansh",
+          "notOut": false,
+          "sr": 33.33
+        },
+        {
+          "name": "Gursimrat",
+          "playerId": null,
+          "runs": 2,
+          "balls": 5,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 40
+        }
+      ],
+      "bowling": [
+        {
+          "name": "Shubhdeep",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 6,
+          "wickets": 1,
+          "econ": 6
+        },
+        {
+          "name": "Aryan",
+          "playerId": null,
+          "overs": "2.0",
+          "maidens": 0,
+          "runs": 7,
+          "wickets": 3,
+          "econ": 3.5
+        },
+        {
+          "name": "Yuvraj",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 10,
+          "wickets": 0,
+          "econ": 10
+        },
+        {
+          "name": "Anurag",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 6,
+          "wickets": 0,
+          "econ": 6
+        },
+        {
+          "name": "Shivansh",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 3,
+          "wickets": 1,
+          "econ": 3
+        },
+        {
+          "name": "Kaptaaan",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 3,
+          "wickets": 1,
+          "econ": 3
+        }
+      ],
+      "extras": {
+        "byes": 0,
+        "legByes": 0,
+        "wides": 13,
+        "noBalls": 3,
+        "penalty": 0,
+        "total": 16
+      },
+      "fallOfWickets": [
+        {
+          "player": "Akash",
+          "score": 0,
+          "wicketNumber": 1,
+          "over": "0.1"
+        },
+        {
+          "player": "Piyush",
+          "score": 8,
+          "wicketNumber": 2,
+          "over": "1.5"
+        },
+        {
+          "player": "Malak",
+          "score": 27,
+          "wicketNumber": 3,
+          "over": "4.5"
+        },
+        {
+          "player": "Nikhil",
+          "score": 29,
+          "wicketNumber": 4,
+          "over": "5.0"
+        },
+        {
+          "player": "Darshil",
+          "score": 32,
+          "wicketNumber": 5,
+          "over": "6.0"
+        }
+      ]
+    },
+    {
+      "team": "Daily Gooners",
+      "total": 33,
+      "wickets": 3,
+      "overs": "7.0",
+      "runRate": 4.71,
+      "batting": [
+        {
+          "name": "Aryan",
+          "playerId": null,
+          "runs": 0,
+          "balls": 5,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Piyush",
+          "notOut": false,
+          "sr": 0
+        },
+        {
+          "name": "Shubhdeep",
+          "playerId": null,
+          "runs": 10,
+          "balls": 19,
+          "fours": 1,
+          "sixes": 0,
+          "dismissal": "b Darshil",
+          "notOut": false,
+          "sr": 52.63
+        },
+        {
+          "name": "Shivansh",
+          "playerId": null,
+          "runs": 5,
+          "balls": 12,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "b Akash",
+          "notOut": false,
+          "sr": 41.67
+        },
+        {
+          "name": "Anurag",
+          "playerId": null,
+          "runs": 4,
+          "balls": 5,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 80
+        },
+        {
+          "name": "Yuvraj",
+          "playerId": null,
+          "runs": 1,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "dismissal": "not out",
+          "notOut": true,
+          "sr": 100
+        }
+      ],
+      "bowling": [
+        {
+          "name": "Piyush",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 1,
+          "runs": 0,
+          "wickets": 1,
+          "econ": 0
+        },
+        {
+          "name": "Darshil",
+          "playerId": null,
+          "overs": "2.0",
+          "maidens": 0,
+          "runs": 8,
+          "wickets": 1,
+          "econ": 4
+        },
+        {
+          "name": "Akash",
+          "playerId": null,
+          "overs": "2.0",
+          "maidens": 0,
+          "runs": 7,
+          "wickets": 1,
+          "econ": 3.5
+        },
+        {
+          "name": "Malak",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 13,
+          "wickets": 0,
+          "econ": 13
+        },
+        {
+          "name": "Gursimrat",
+          "playerId": null,
+          "overs": "1.0",
+          "maidens": 0,
+          "runs": 5,
+          "wickets": 0,
+          "econ": 5
+        }
+      ],
+      "extras": {
+        "byes": 0,
+        "legByes": 0,
+        "wides": 13,
+        "noBalls": 0,
+        "penalty": 0,
+        "total": 13
+      },
+      "fallOfWickets": [
+        {
+          "player": "Aryan",
+          "score": 0,
+          "wicketNumber": 1,
+          "over": "0.5"
+        },
+        {
+          "player": "Shivansh",
+          "score": 26,
+          "wicketNumber": 2,
+          "over": "5.2"
+        },
+        {
+          "player": "Shubhdeep",
+          "score": 28,
+          "wicketNumber": 3,
+          "over": "6.1"
+        }
+      ]
+    }
+  ],
+  "summaryRaw": "Pussy Distroyers won by 2 runs. Pussy Distroyers 35-6 (7.0), Daily Gooners 33-3 (7.0)"
+}
