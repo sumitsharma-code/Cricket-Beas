@@ -202,6 +202,42 @@ exports.getLeaderboards = async (req, res) => {
         { $limit: 10 }
       ]);
 
+      // Best Batting Average (Min 2 Innings)
+      const bestAverage = await Player.aggregate([
+        { $match: { 'stats.batting.innings': { $gte: 2 } } },
+        { 
+          $addFields: { 
+            battingAverage: { 
+              $cond: [
+                { $gt: [ { $subtract: ['$stats.batting.innings', '$stats.batting.notOuts'] }, 0 ] },
+                { $round: [ { $divide: ['$stats.batting.runs', { $subtract: ['$stats.batting.innings', '$stats.batting.notOuts'] }] }, 2 ] },
+                { $cond: [ { $gt: ['$stats.batting.runs', 0] }, '$stats.batting.runs', 0 ] }
+              ] 
+            } 
+          } 
+        },
+        { $sort: { battingAverage: -1, 'stats.batting.runs': -1 } },
+        { $limit: 10 }
+      ]);
+
+      // Worst Batting Average (Min 2 Innings)
+      const worstAverage = await Player.aggregate([
+        { $match: { 'stats.batting.innings': { $gte: 2 } } },
+        { 
+          $addFields: { 
+            battingAverage: { 
+              $cond: [
+                { $gt: [ { $subtract: ['$stats.batting.innings', '$stats.batting.notOuts'] }, 0 ] },
+                { $round: [ { $divide: ['$stats.batting.runs', { $subtract: ['$stats.batting.innings', '$stats.batting.notOuts'] }] }, 2 ] },
+                { $cond: [ { $gt: ['$stats.batting.runs', 0] }, '$stats.batting.runs', 0 ] }
+              ] 
+            } 
+          } 
+        },
+        { $sort: { battingAverage: 1, 'stats.batting.runs': 1 } },
+        { $limit: 10 }
+      ]);
+
       return res.json({
         orangeCap,
         purpleCap,
@@ -215,6 +251,8 @@ exports.getLeaderboards = async (req, res) => {
         highestRunRate,
         mvp,
         emergingPlayer,
+        bestAverage,
+        worstAverage,
       });
     }
 
@@ -440,6 +478,30 @@ exports.getLeaderboards = async (req, res) => {
       .sort((a, b) => b.mvpPoints - a.mvpPoints)
       .slice(0, 10);
 
+    const bestAverage = players
+      .filter(p => p.stats.batting.innings >= 2)
+      .map(p => {
+        const divisor = p.stats.batting.innings - p.stats.batting.notOuts;
+        const battingAverage = divisor > 0
+          ? parseFloat((p.stats.batting.runs / divisor).toFixed(2))
+          : (p.stats.batting.runs > 0 ? parseFloat(p.stats.batting.runs.toFixed(2)) : 0);
+        return { ...p, battingAverage };
+      })
+      .sort((a, b) => b.battingAverage - a.battingAverage || b.stats.batting.runs - a.stats.batting.runs)
+      .slice(0, 10);
+
+    const worstAverage = players
+      .filter(p => p.stats.batting.innings >= 2)
+      .map(p => {
+        const divisor = p.stats.batting.innings - p.stats.batting.notOuts;
+        const battingAverage = divisor > 0
+          ? parseFloat((p.stats.batting.runs / divisor).toFixed(2))
+          : (p.stats.batting.runs > 0 ? parseFloat(p.stats.batting.runs.toFixed(2)) : 0);
+        return { ...p, battingAverage };
+      })
+      .sort((a, b) => a.battingAverage - b.battingAverage || a.stats.batting.runs - b.stats.batting.runs)
+      .slice(0, 10);
+
     res.json({
       orangeCap,
       purpleCap,
@@ -453,6 +515,8 @@ exports.getLeaderboards = async (req, res) => {
       highestRunRate,
       mvp,
       emergingPlayer,
+      bestAverage,
+      worstAverage,
     });
   } catch (error) {
     console.error(error);
