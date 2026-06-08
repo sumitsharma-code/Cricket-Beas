@@ -53,6 +53,8 @@ export default function Leaderboards() {
     bestEconomy = [],
     mostDotBalls = [],
     mostCatches = [],
+    mostDucks = [],
+    highestRunRate = [],
     mvp = [],
     emergingPlayer = []
   } = data;
@@ -272,6 +274,74 @@ export default function Leaderboards() {
                 <span className="font-bold text-slate-905 dark:text-white">{p.mvpPoints} pts</span>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Hall of Shame */}
+        <div className="bg-red-950/5 dark:bg-red-950/30 border border-red-200/70 dark:border-red-900/60 rounded-[32px] p-6 shadow-[0_24px_80px_-40px_rgba(220,38,38,0.55)] col-span-1 md:col-span-2">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="text-base font-bold text-red-950 dark:text-red-100">Hall of Shame</h3>
+              <p className="text-sm text-red-700/80 dark:text-red-200/70">Top 3 worst offenders for ducks and expensive bowling.</p>
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-red-300 bg-red-100/80 px-3 py-1 text-sm font-semibold text-red-800 dark:border-red-700/50 dark:bg-red-900/30 dark:text-red-200">
+              <ShieldAlert className="h-4 w-4" />
+              Badges of infamy
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="rounded-3xl border border-red-200/80 bg-white dark:bg-red-950/80 p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-[0.24em] text-red-600">Most Ducks</h4>
+                  <p className="text-[11px] text-red-700 dark:text-red-300 mt-1">Only the top 3 make it here.</p>
+                </div>
+                <span className="rounded-full bg-red-100 px-2 py-1 text-[11px] font-semibold text-red-800 dark:bg-red-800/70 dark:text-red-100">Shame Level</span>
+              </div>
+              <div className="space-y-3">
+                {mostDucks.length === 0 ? (
+                  <p className="text-sm text-slate-500">No duck data available yet.</p>
+                ) : (
+                  mostDucks.slice(0, 3).map((p, idx) => (
+                    <div key={p._id} className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50/80 p-3 text-sm text-red-950 dark:border-red-700/50 dark:bg-red-900/50 dark:text-red-100">
+                      <span className="min-w-[24px] text-lg font-black text-red-600">{idx + 1}</span>
+                      <div className="min-w-0 grow">
+                        <Link to={`/players/${p._id}`} className="block truncate font-bold hover:underline">{p.name || p.player?.name || 'Unknown Player'}</Link>
+                        <p className="text-[11px] text-red-700/80 dark:text-red-200/70">Duck count: <span className="font-semibold">{p.ducks ?? p.stats?.batting?.ducks ?? '-'}</span></p>
+                      </div>
+                      <span className="rounded-full bg-red-600 px-2 py-1 text-[11px] font-semibold text-white">{p.ducks ?? p.stats?.batting?.ducks ?? '-'}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-red-200/80 bg-white dark:bg-red-950/80 p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-[0.24em] text-red-600">Most Expensive Economy</h4>
+                  <p className="text-[11px] text-red-700 dark:text-red-300 mt-1">Worst runs per over conceded, top 3 only.</p>
+                </div>
+                <span className="rounded-full bg-red-100 px-2 py-1 text-[11px] font-semibold text-red-800 dark:bg-red-800/70 dark:text-red-100">RPO Pain</span>
+              </div>
+              <div className="space-y-3">
+                {highestRunRate.length === 0 ? (
+                  <p className="text-sm text-slate-500">No run rate data available yet.</p>
+                ) : (
+                  highestRunRate.slice(0, 3).map((p, idx) => (
+                    <div key={p._id} className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50/80 p-3 text-sm text-red-950 dark:border-red-700/50 dark:bg-red-900/50 dark:text-red-100">
+                      <span className="min-w-[24px] text-lg font-black text-red-600">{idx + 1}</span>
+                      <div className="min-w-0 grow">
+                        <Link to={`/players/${p._id}`} className="block truncate font-bold hover:underline">{p.name || p.player?.name || 'Unknown Player'}</Link>
+                        <p className="text-[11px] text-red-700/80 dark:text-red-200/70">Runs per over: <span className="font-semibold">{p.runRate ?? (p.stats?.bowling?.ballsBowled ? parseFloat((p.stats.bowling.runsConceded / (p.stats.bowling.ballsBowled / 6)).toFixed(2)) : '-')}</span></p>
+                      </div>
+                      <span className="rounded-full bg-red-600 px-2 py-1 text-[11px] font-semibold text-white">{p.runRate ?? (p.stats?.bowling?.ballsBowled ? parseFloat((p.stats.bowling.runsConceded / (p.stats.bowling.ballsBowled / 6)).toFixed(2)) : '-')}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         </div>
 

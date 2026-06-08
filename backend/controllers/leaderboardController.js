@@ -1,6 +1,44 @@
 const Player = require('../models/Player');
 const Match = require('../models/Match');
 
+const getMostDucksFromMatches = async () => {
+  return Match.aggregate([
+    { $unwind: '$innings' },
+    { $unwind: '$innings.battingScorecard' },
+    {
+      $match: {
+        'innings.battingScorecard.outStatus': { $nin: ['DNB', 'Not Out', 'Retired Hurt'] },
+        'innings.battingScorecard.runs': 0
+      }
+    },
+    {
+      $group: {
+        _id: '$innings.battingScorecard.playerId',
+        ducks: { $sum: 1 }
+      }
+    },
+    {
+      $lookup: {
+        from: 'players',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'player'
+      }
+    },
+    { $unwind: '$player' },
+    {
+      $project: {
+        _id: '$player._id',
+        name: '$player.name',
+        stats: '$player.stats',
+        ducks: 1
+      }
+    },
+    { $sort: { ducks: -1, 'stats.batting.runs': 1 } },
+    { $limit: 10 }
+  ]);
+};
+
 exports.getLeaderboards = async (req, res) => {
   try {
     const liveMatches = await Match.find({ status: 'Live' });
@@ -70,7 +108,36 @@ exports.getLeaderboards = async (req, res) => {
         .sort({ 'stats.fielding.catches': -1 })
         .limit(10);
 
-      // 9. MVP / Player of the Tournament
+      // 9. Most Ducks
+      let mostDucks = await Player.find({ 'stats.batting.ducks': { $gt: 0 } })
+        .sort({ 'stats.batting.ducks': -1, 'stats.batting.runs': 1 })
+        .limit(10);
+
+      if (mostDucks.length === 0) {
+        mostDucks = await getMostDucksFromMatches();
+      }
+
+      // 10. Highest Runs Run Rate by Bowler (runs per over bowled)
+      const highestRunRate = await Player.aggregate([
+        { $match: { 'stats.bowling.ballsBowled': { $gt: 0 } } },
+        {
+          $addFields: {
+            oversBowled: { $divide: ['$stats.bowling.ballsBowled', 6] },
+            runRate: {
+              $round: [
+                {
+                  $divide: ['$stats.bowling.runsConceded', { $divide: ['$stats.bowling.ballsBowled', 6] }]
+                },
+                2
+              ]
+            }
+          }
+        },
+        { $sort: { runRate: -1, 'stats.bowling.runsConceded': -1 } },
+        { $limit: 10 }
+      ]);
+
+      // 11. MVP / Player of the Tournament
       const mvp = await Player.aggregate([
         {
           $addFields: {
@@ -144,6 +211,8 @@ exports.getLeaderboards = async (req, res) => {
         bestEconomy,
         mostDotBalls,
         mostCatches,
+        mostDucks,
+        highestRunRate,
         mvp,
         emergingPlayer,
       });
@@ -320,6 +389,25 @@ exports.getLeaderboards = async (req, res) => {
       .sort((a, b) => b.stats.fielding.catches - a.stats.fielding.catches)
       .slice(0, 10);
 
+    let mostDucks = players
+      .filter(p => p.stats.batting.ducks > 0)
+      .sort((a, b) => b.stats.batting.ducks - a.stats.batting.ducks || a.stats.batting.runs - b.stats.batting.runs)
+      .slice(0, 10);
+
+    if (mostDucks.length === 0) {
+      mostDucks = await getMostDucksFromMatches();
+    }
+
+    const highestRunRate = players
+      .filter(p => p.stats.bowling.ballsBowled > 0)
+      .map(p => {
+        const overs = p.stats.bowling.ballsBowled / 6;
+        const runRate = parseFloat((p.stats.bowling.runsConceded / overs).toFixed(2));
+        return { ...p, runRate };
+      })
+      .sort((a, b) => b.runRate - a.runRate || b.stats.bowling.runsConceded - a.stats.bowling.runsConceded)
+      .slice(0, 10);
+
     const calculateMvpPoints = (p) => {
       const runs = p.stats.batting.runs || 0;
       const fours = p.stats.batting.fours || 0;
@@ -361,6 +449,8 @@ exports.getLeaderboards = async (req, res) => {
       bestEconomy,
       mostDotBalls,
       mostCatches,
+      mostDucks,
+      highestRunRate,
       mvp,
       emergingPlayer,
     });
