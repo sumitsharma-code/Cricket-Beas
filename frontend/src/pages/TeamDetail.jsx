@@ -16,6 +16,7 @@ export default function TeamDetail() {
   // Roster states
   const [selectedPlayerId, setSelectedPlayerId] = useState('');
   const [isManaging, setIsManaging] = useState(false);
+  const [playerSearchQuery, setPlayerSearchQuery] = useState('');
 
   const fetchTeamDetails = async () => {
     try {
@@ -93,6 +94,10 @@ export default function TeamDetail() {
   // Players who are not in this team already
   const playersNotInTeam = allPlayers.filter(player => 
     !squad.some(s => s._id === player._id)
+  );
+
+  const filteredPlayersNotInTeam = playersNotInTeam.filter(player =>
+    player.name.toLowerCase().includes(playerSearchQuery.toLowerCase())
   );
 
   return (
@@ -196,14 +201,22 @@ export default function TeamDetail() {
               
               <form onSubmit={handleAddPlayer} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1">Add Player to Squad</label>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">Search Player</label>
+                  <input
+                    type="text"
+                    value={playerSearchQuery}
+                    onChange={(e) => setPlayerSearchQuery(e.target.value)}
+                    placeholder="Type name to filter..."
+                    className="w-full p-2 border border-slate-300 dark:border-dark-border rounded-xl bg-transparent dark:text-white text-sm mb-3"
+                  />
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">Select Player</label>
                   <select
                     value={selectedPlayerId}
                     onChange={(e) => setSelectedPlayerId(e.target.value)}
                     className="w-full p-2 border border-slate-300 dark:border-dark-border rounded-xl bg-transparent dark:text-white text-sm"
                   >
                     <option value="">Select a player...</option>
-                    {playersNotInTeam.map(p => (
+                    {filteredPlayersNotInTeam.map(p => (
                       <option key={p._id} value={p._id}>{p.name} ({p.role})</option>
                     ))}
                   </select>

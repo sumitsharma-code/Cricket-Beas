@@ -157,6 +157,18 @@ export const api = {
       headers: getHeaders()
     }).then(handleResponse),
 
+  undoLastBall: (id) => 
+    fetch(`${API_URL}/matches/${id}/undo`, {
+      method: 'POST',
+      headers: getHeaders()
+    }).then(handleResponse),
+
+  deleteMatch: (id) => 
+    fetch(`${API_URL}/matches/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    }).then(handleResponse),
+
   // Leaderboards
   getLeaderboards: () => 
     fetch(`${API_URL}/leaderboards`, { headers: getHeaders() }).then(handleResponse),

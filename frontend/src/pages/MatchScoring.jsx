@@ -5,6 +5,179 @@ import WagonWheelSelector from '../components/WagonWheelSelector';
 import { ArrowLeft, BarChart2, FileText, ChevronRight, CornerUpLeft, Award, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+const getOptimisticMatchState = (match, runs, extraType, extraRuns, wicketFell, wicketType, dismissedPlayerId) => {
+  const newMatch = JSON.parse(JSON.stringify(match));
+  const innNo = newMatch.currentInnings;
+  const innings = newMatch.innings[innNo - 1];
+  
+  const strikerId = newMatch.currentState.strikerId?._id || newMatch.currentState.strikerId;
+  const nonStrikerId = newMatch.currentState.nonStrikerId?._id || newMatch.currentState.nonStrikerId;
+  const bowlerId = newMatch.currentState.currentBowlerId?._id || newMatch.currentState.currentBowlerId;
+
+  if (!strikerId || !nonStrikerId || !bowlerId) return newMatch;
+
+  let batsmanCard = innings.battingScorecard.find(c => (c.playerId?._id || c.playerId).toString() === strikerId.toString());
+  if (!batsmanCard) {
+    batsmanCard = { playerId: newMatch.currentState.strikerId, runs: 0, ballsFaced: 0, fours: 0, sixes: 0, outStatus: 'Not Out' };
+    innings.battingScorecard.push(batsmanCard);
+    batsmanCard = innings.battingScorecard[innings.battingScorecard.length - 1];
+  }
+
+  let bowlerCard = innings.bowlingScorecard.find(c => (c.playerId?._id || c.playerId).toString() === bowlerId.toString());
+  if (!bowlerCard) {
+    bowlerCard = { playerId: newMatch.currentState.currentBowlerId, overs: 0, balls: 0, maidens: 0, runsConceded: 0, wickets: 0, dotBalls: 0 };
+    innings.bowlingScorecard.push(bowlerCard);
+    bowlerCard = innings.bowlingScorecard[innings.bowlingScorecard.length - 1];
+  }
+
+  let teamRunsThisBall = 0;
+  let batsmanRunsThisBall = 0;
+  let bowlerRunsThisBall = 0;
+  let isLegalBall = true;
+  let ballDisplay = '0';
+
+  if (extraType === 'Wide') {
+    isLegalBall = false;
+    teamRunsThisBall = 1 + (extraRuns || 0);
+    bowlerRunsThisBall = 1 + (extraRuns || 0);
+    innings.extras.wides = (innings.extras.wides || 0) + teamRunsThisBall;
+    innings.extras.total = (innings.extras.total || 0) + teamRunsThisBall;
+    ballDisplay = `${teamRunsThisBall}wd`;
+  } else if (extraType === 'No Ball') {
+    isLegalBall = false;
+    batsmanRunsThisBall = runs || 0;
+    teamRunsThisBall = 1 + batsmanRunsThisBall + (extraRuns || 0);
+    bowlerRunsThisBall = 1 + batsmanRunsThisBall + (extraRuns || 0);
+    innings.extras.noballs = (innings.extras.noballs || 0) + 1 + (extraRuns || 0);
+    innings.extras.total = (innings.extras.total || 0) + 1 + (extraRuns || 0);
+
+    batsmanCard.ballsFaced += 1;
+    batsmanCard.runs += batsmanRunsThisBall;
+    if (batsmanRunsThisBall === 4) batsmanCard.fours += 1;
+    if (batsmanRunsThisBall === 6) batsmanCard.sixes += 1;
+    ballDisplay = `${runs || 0}nb`;
+    newMatch.currentState.freeHit = true;
+  } else {
+    batsmanCard.ballsFaced += 1;
+    if (extraType === 'Bye') {
+      teamRunsThisBall = extraRuns || 0;
+      innings.extras.byes = (innings.extras.byes || 0) + teamRunsThisBall;
+      innings.extras.total = (innings.extras.total || 0) + teamRunsThisBall;
+      ballDisplay = `${teamRunsThisBall}b`;
+    } else if (extraType === 'Leg Bye') {
+      teamRunsThisBall = extraRuns || 0;
+      innings.extras.legbyes = (innings.extras.legbyes || 0) + teamRunsThisBall;
+      innings.extras.total = (innings.extras.total || 0) + teamRunsThisBall;
+      ballDisplay = `${teamRunsThisBall}lb`;
+    } else {
+      batsmanRunsThisBall = runs || 0;
+      teamRunsThisBall = batsmanRunsThisBall;
+      bowlerRunsThisBall = batsmanRunsThisBall;
+      batsmanCard.runs += batsmanRunsThisBall;
+      if (batsmanRunsThisBall === 4) batsmanCard.fours += 1;
+      if (batsmanRunsThisBall === 6) batsmanCard.sixes += 1;
+      ballDisplay = `${batsmanRunsThisBall}`;
+    }
+  }
+
+  innings.runs += teamRunsThisBall;
+
+  bowlerCard.runsConceded += bowlerRunsThisBall;
+  if (isLegalBall) {
+    bowlerCard.balls += 1;
+    if (teamRunsThisBall === 0) {
+      bowlerCard.dotBalls += 1;
+    }
+    if (bowlerCard.balls === 6) {
+      bowlerCard.overs += 1;
+      bowlerCard.balls = 0;
+    }
+  }
+
+  if (wicketFell) {
+    const disId = dismissedPlayerId || strikerId;
+    innings.wickets += 1;
+    const wType = wicketType || 'Bowled';
+
+    let outBatsmanCard = innings.battingScorecard.find(c => (c.playerId?._id || c.playerId).toString() === disId.toString());
+    if (outBatsmanCard) {
+      outBatsmanCard.outStatus = wType;
+      outBatsmanCard.dismissalText = `b Bowler`; 
+    }
+
+    if (['Bowled', 'Caught', 'LBW', 'Stumped', 'Hit Wicket'].includes(wType)) {
+      bowlerCard.wickets += 1;
+    }
+
+    innings.fallOfWickets.push({
+      wicketNo: innings.wickets,
+      runs: innings.runs,
+      overs: innings.overs,
+      balls: innings.balls + (isLegalBall ? 1 : 0),
+      playerId: disId
+    });
+
+    ballDisplay = 'W';
+
+    if (disId.toString() === strikerId.toString()) {
+      newMatch.currentState.strikerId = null;
+    } else {
+      newMatch.currentState.nonStrikerId = null;
+    }
+  }
+
+  if (isLegalBall) {
+    innings.balls += 1;
+    newMatch.currentState.ballsBowledInOver += 1;
+    if (innings.balls === 6) {
+      innings.overs += 1;
+      innings.balls = 0;
+    }
+  }
+
+  newMatch.currentState.runsInCurrentOver += teamRunsThisBall;
+  newMatch.currentState.lastBalls.push(ballDisplay);
+
+  const totalRunsMovingStrike = extraType === 'Wide' ? (extraRuns || 0) : (runs || 0) + (extraRuns || 0);
+  if (totalRunsMovingStrike % 2 !== 0 && !wicketFell) {
+    const temp = newMatch.currentState.strikerId;
+    newMatch.currentState.strikerId = newMatch.currentState.nonStrikerId;
+    newMatch.currentState.nonStrikerId = temp;
+  }
+
+  if (newMatch.currentState.ballsBowledInOver === 6) {
+    const temp = newMatch.currentState.strikerId;
+    newMatch.currentState.strikerId = newMatch.currentState.nonStrikerId;
+    newMatch.currentState.nonStrikerId = temp;
+
+    newMatch.currentState.ballsBowledInOver = 0;
+    newMatch.currentState.runsInCurrentOver = 0;
+    newMatch.currentState.lastBalls = [];
+    newMatch.currentState.currentBowlerId = null;
+  }
+
+  const totalBallsAllowed = newMatch.totalOvers * 6;
+  const currentBallsInnings = (innings.overs * 6) + innings.balls;
+  if (newMatch.currentInnings === 1) {
+    if (innings.wickets === 10 || currentBallsInnings >= totalBallsAllowed) {
+      newMatch.currentInnings = 2;
+      newMatch.currentState.strikerId = null;
+      newMatch.currentState.nonStrikerId = null;
+      newMatch.currentState.currentBowlerId = null;
+      newMatch.currentState.ballsBowledInOver = 0;
+      newMatch.currentState.runsInCurrentOver = 0;
+      newMatch.currentState.lastBalls = [];
+    }
+  } else if (newMatch.currentInnings === 2) {
+    const target = newMatch.innings[0].runs + 1;
+    if (innings.runs >= target || innings.wickets === 10 || currentBallsInnings >= totalBallsAllowed) {
+      newMatch.status = 'Completed';
+    }
+  }
+
+  return newMatch;
+};
+
 export default function MatchScoring() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -81,21 +254,28 @@ export default function MatchScoring() {
     fetchMatchDetails();
   }, [id]);
 
+  useEffect(() => {
+    if (match && match.status === 'Live') {
+      const needStriker = !match.currentState?.strikerId;
+      const needNonStriker = !match.currentState?.nonStrikerId;
+      const needBowler = !match.currentState?.currentBowlerId;
+      if (needStriker || needNonStriker || needBowler) {
+        setShowPlayerSelector(true);
+      }
+    }
+  }, [match]);
+
   const handleStartMatch = async (e) => {
     e.preventDefault();
     if (!tossWonBy) return;
     try {
       setLoading(true);
-      // First save totalOvers if edited
       if (Number(oversInput) !== match.totalOvers) {
-        // Assume startMatch handles updating totalOvers on the match model
         match.totalOvers = Number(oversInput);
       }
-      await api.startMatch(id, { tossWonBy, tossDecision });
+      await api.startMatch(id, { tossWonBy, tossDecision, totalOvers: Number(oversInput) });
       const updated = await api.getMatch(id);
       setMatch(updated);
-      
-      // Immediately open the Select Opening Players screen
       setShowPlayerSelector(true);
     } catch (err) {
       alert(err.message);
@@ -165,10 +345,11 @@ export default function MatchScoring() {
     }
 
     try {
+      const oldInnings = match.currentInnings;
       const payload = {
         runsScored: runs,
         extraType: extraType,
-        extraRuns: Number(extraRuns) || (extraType === 'Wide' || extraType === 'No Ball' ? 0 : 0),
+        extraRuns: Number(extraRuns) || 0,
         commentaryText: commentaryText || undefined,
       };
 
@@ -185,9 +366,27 @@ export default function MatchScoring() {
         payload.wagonWheel = wagonWheelCoords;
       }
 
-      const res = await api.recordBall(id, payload);
-      
-      // Reset ball recording state
+      // Calculate and set optimistic state immediately
+      const optMatch = getOptimisticMatchState(
+        match,
+        runs,
+        extraType,
+        Number(extraRuns) || 0,
+        wicketFell,
+        wicketType,
+        dismissedPlayerId || match.currentState.strikerId?._id
+      );
+      setMatch(optMatch);
+
+      // Check if bowler needs setting optimistically (due to over ending)
+      const optStriker = optMatch.currentState?.strikerId;
+      const optNonStriker = optMatch.currentState?.nonStrikerId;
+      const optBowler = optMatch.currentState?.currentBowlerId;
+      if (!optStriker || !optNonStriker || !optBowler) {
+        setShowPlayerSelector(true);
+      }
+
+      // Reset ball recording state immediately
       setRunsInput(0);
       setExtraType('None');
       setExtraRuns(0);
@@ -198,13 +397,25 @@ export default function MatchScoring() {
       setWagonWheelCoords(null);
       setCommentaryText('');
 
-      await fetchMatchDetails();
+      // Send API request in background
+      api.recordBall(id, payload).then(async (res) => {
+        await fetchMatchDetails();
+        const updated = res.match || await api.getMatch(id);
+        if (updated.status === 'Completed') {
+          alert(`Match Completed! ${updated.resultDescription}`);
+        } else if (updated.currentInnings !== oldInnings) {
+          alert("Innings Completed! Select opening batsmen and bowler for the next innings.");
+          setShowPlayerSelector(true);
+        } else if (res.isOverEnd) {
+          alert("Over Completed! Select next bowler.");
+          setShowPlayerSelector(true);
+        }
+      }).catch(err => {
+        alert("Failed to save ball: " + err.message);
+        // Fallback to database state
+        fetchMatchDetails();
+      });
 
-      // Check if bowler needs setting (due to over ending)
-      if (res.isOverEnd) {
-        alert("Over Completed! Select next bowler.");
-        setShowPlayerSelector(true);
-      }
     } catch (err) {
       alert(err.message);
     }
@@ -215,8 +426,38 @@ export default function MatchScoring() {
       try {
         await api.endInnings(id);
         await fetchMatchDetails();
+        setShowPlayerSelector(true);
       } catch (err) {
         alert(err.message);
+      }
+    }
+  };
+
+  const handleUndo = async () => {
+    if (window.confirm("Undo the last ball?")) {
+      try {
+        setLoading(true);
+        await api.undoLastBall(id);
+        await fetchMatchDetails();
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleRemoveMatch = async () => {
+    if (window.confirm("Are you sure you want to permanently delete this match and remove all associated player/team statistics? This action CANNOT be undone.")) {
+      try {
+        setLoading(true);
+        await api.deleteMatch(id);
+        alert("Match deleted successfully.");
+        navigate('/');
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -434,10 +675,15 @@ export default function MatchScoring() {
             </div>
 
             {/* Actions */}
-            <div className="flex justify-between items-center pt-3">
-              <span className="text-sm font-semibold text-slate-500 cursor-pointer hover:underline">
-                Advanced settings
-              </span>
+            <div className="flex justify-between items-center pt-3 gap-3">
+              <button
+                type="button"
+                onClick={handleRemoveMatch}
+                disabled={isScorerLocked}
+                className="bg-red-650 hover:bg-red-750 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all shadow-md active:scale-95 disabled:opacity-50"
+              >
+                Delete Match
+              </button>
               <button 
                 type="submit" 
                 disabled={isScorerLocked}
@@ -807,6 +1053,14 @@ export default function MatchScoring() {
 
                 {/* Actions row: Swap, Retire */}
                 <div className="flex gap-3 justify-end">
+                  <button
+                    type="button"
+                    onClick={handleRemoveMatch}
+                    disabled={isScorerLocked}
+                    className="bg-red-650 hover:bg-red-750 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition-colors disabled:opacity-50 shadow"
+                  >
+                    Delete Match
+                  </button>
                   <button 
                     type="button"
                     onClick={handleEndInnings}
@@ -840,7 +1094,7 @@ export default function MatchScoring() {
               <div className="flex flex-col gap-3.5">
                 <button
                   type="button"
-                  onClick={() => alert("Undo function: deletes the last BallEvent to revert score.")}
+                  onClick={handleUndo}
                   disabled={isScorerLocked}
                   className="bg-cricket-650 hover:bg-cricket-750 text-white font-bold py-3.5 rounded-2xl text-xs shadow-sm flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50"
                 >

@@ -1,3 +1,5 @@
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const { connectDB } = require('../config/db');
 const Match = require('../models/Match');
 const Team = require('../models/Team');
@@ -5,7 +7,7 @@ const Player = require('../models/Player');
 
 async function run() {
   await connectDB();
-  const id = '6a2267a92ec1b261e5e1708e'; // ID from import script output
+  const id = '6a269f9f0a67672aecca470f'; // ID from import script output
   const match = await Match.findById(id).populate('homeTeamId awayTeamId innings.battingScorecard.playerId innings.bowlingScorecard.playerId innings.fallOfWickets.playerId').lean();
   if (!match) {
     console.log('Match not found with id', id);
